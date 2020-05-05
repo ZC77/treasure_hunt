@@ -10,7 +10,13 @@ import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
 const Stack = createStackNavigator();
-
+/*
+NOTES:
+This app has mutliple screens - they are found in HomeScreen.js and LinkScreen.js
+This file sets up the navigation tabs between the 2 screens.
+Have a look at the expo docs (docs.expo.io) it's probably best to stick to their libraries
+as much as we can, because this is a react-native app built using expo.
+*/
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
   const [initialNavigationState, setInitialNavigationState] = React.useState();

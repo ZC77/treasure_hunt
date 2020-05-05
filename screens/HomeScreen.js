@@ -4,11 +4,38 @@ import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
+import WebViewLeafletView from 'react-native-webview-leaflet/WebViewLeaflet.view';
+import { WebViewLeaflet } from 'react-native-webview-leaflet';
 
 export default function HomeScreen() {
+  var hello = "Hello world"
+  msgRecieved = function(params){
+
+  }
   return (
     <View style={styles.container}>
+      <WebViewLeaflet
+        ref={component => (this.webViewLeaflet = component)}
+        onMessageReceived={msgRecieved}
+        zoom = {18}
+        mapLayers = {[{
+          baseLayerName: 'OpenStreetMap',  // the name of the layer, this will be seen in the layer selection control
+          baseLayerIsChecked: 'true',  // if the layer is selected in the layer selection control
+          layerType: 'TileLayer',  // Optional: a MapLayerType enum specifying the type of layer see "Types of Layers" below. Defaults to TILE_LAYER
+          baseLayer: true,
+          // url of tiles
+          url: `https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`,
+          // attribution string to be shown for this layer
+          attribution:
+            '&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors'
+        }]}
+      ></WebViewLeaflet>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={{
+        height:200,
+      }}>
+        <Text>{hello}</Text>
+      </View>
         <View style={styles.welcomeContainer}>
           <Image
             source={
@@ -22,7 +49,7 @@ export default function HomeScreen() {
 
         <View style={styles.getStartedContainer}>
           <DevelopmentModeNotice />
-
+          <Text>Testing that hot reloading works! yo</Text>
           <Text style={styles.getStartedText}>Open up the code for this screen:</Text>
 
           <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
@@ -30,10 +57,10 @@ export default function HomeScreen() {
           </View>
 
           <Text style={styles.getStartedText}>
-            Change any of the text, save the file, and your app will automatically reload.
+            Change any of the text, save the file, and your app will automatically reload. YO
           </Text>
         </View>
-
+        
         <View style={styles.helpContainer}>
           <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
             <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
