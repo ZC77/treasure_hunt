@@ -15,7 +15,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <LeafletView></LeafletView>
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}> 
         <View style={styles.welcomeContainer}>
           <Image
             source={
