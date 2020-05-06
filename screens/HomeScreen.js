@@ -4,8 +4,8 @@ import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
-import WebViewLeafletView from 'react-native-webview-leaflet/WebViewLeaflet.view';
-import { WebViewLeaflet } from 'react-native-webview-leaflet';
+
+import LeafletView from  "../components/LeafletView"
 
 export default function HomeScreen() {
   var hello = "Hello world"
@@ -14,28 +14,8 @@ export default function HomeScreen() {
   }
   return (
     <View style={styles.container}>
-      <WebViewLeaflet
-        ref={component => (this.webViewLeaflet = component)}
-        onMessageReceived={msgRecieved}
-        zoom = {18}
-        mapLayers = {[{
-          baseLayerName: 'OpenStreetMap',  // the name of the layer, this will be seen in the layer selection control
-          baseLayerIsChecked: 'true',  // if the layer is selected in the layer selection control
-          layerType: 'TileLayer',  // Optional: a MapLayerType enum specifying the type of layer see "Types of Layers" below. Defaults to TILE_LAYER
-          baseLayer: true,
-          // url of tiles
-          url: `https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`,
-          // attribution string to be shown for this layer
-          attribution:
-            '&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors'
-        }]}
-      ></WebViewLeaflet>
+      <LeafletView></LeafletView>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={{
-        height:200,
-      }}>
-        <Text>{hello}</Text>
-      </View>
         <View style={styles.welcomeContainer}>
           <Image
             source={
