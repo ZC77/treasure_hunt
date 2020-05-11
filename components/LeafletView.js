@@ -7,8 +7,11 @@ import { ProgressBarAndroid } from 'react-native';
 // https://leafletjs.com/examples/quick-start/
 // https://github.com/react-native-community/react-native-webview/blob/master/docs/Guide.md#react-native-webview-guide
 
-export default function LeafletView(props){
-    const webviewHTML = `
+export default class LeafletView extends React.Component {
+    constructor(props){
+        super(props);
+    }
+    webviewHTML = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,9 +50,18 @@ L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
 </html>
     `
 
-    return(
-        <WebView
-            source={{html:webviewHTML}}
-        ></WebView> 
-    )
+    panTo(lat , long){
+        this.webref.injectJavaScript(`
+        map.panTo([`+lat+`,`+long+`])
+        `)
+    }
+
+    render() {
+        return(
+            <WebView
+            ref={r => (this.webref = r)}
+                source={{html:this.webviewHTML}}
+            ></WebView> 
+        )
+    }
 }
