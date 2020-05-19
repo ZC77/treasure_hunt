@@ -2,47 +2,81 @@ import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
 
 import LeafletView from  "../components/LeafletView"
 
-export default function HomeScreen() {
 
-  // doing the location
-  const [location, setLocation] = React.useState(null);
+export default function HomeScreen() {
+  // holds our current location
+  this.location = {
+    lat:0,
+    long:0,
+  }
+  // the reference to the Leafletview
+  this.leafletView;
+  //
+  var markers = [
+    {lat:-37.7881,long:535.31597},
+  ]
+
+  // state stuff (when you use setLocation, React updates places in the page where you used location.
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [latlong, setlatlong] = React.useState(null);
+
+
+  // doing the location
   React.useEffect(() => {
     Location.requestPermissionsAsync()
     .then(
       status => Location.getCurrentPositionAsync({})
     ).then(location=>{
+      this.location.lat = location.coords.latitude
+      this.location.long = location.coords.longitude;
       setlatlong(location.coords.latitude+ "   " + location.coords.longitude)
-      setLocation(location);
-      this.leafletView.panTo(location.coords.latitude,location.coords.longitude)
+      this.leafletView.updateLocation(this.location.lat,this.location.long)
       setErrorMsg("");
     }).catch(err=>{
       setErrorMsg('Something went wrong. ' + err);
     })
+
     
   });
-  // the reference to the Leafletview
-  this.leafletView;
+
+
+
+  // EVENTS
+  function onLeafletviewResolved(reference){
+    this.leafletView = reference;
+    // initiliser for leafletView -anything we want to do onload goes here
+    setTimeout(()=>{
+      for(marker of markers){
+        this.leafletView.addMarker(marker.lat,marker.long,this.leafletView.icons.gold,"this is an marker")
+      }
+    },1000)
+    
+
+  }
+  // location button
+  this.centerOnLocation = ()=>{
+    this.leafletView.panTo(this.location.lat,this.location.long);
+  }
   
   return (
     <View style={styles.container}>
+      <View style={{height: 400}} >
       <LeafletView
       // we have to use a ref, because we can't always pass stuff in as props because
       // we don't want to create a new instance of a webview every time we change something
-      ref={reference=>{this.leafletView = reference}}
+      ref={onLeafletviewResolved}
       ></LeafletView>
+      </View>
+      <Button onPress={this.centerOnLocation} title="◎"></Button>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}> 
         
-
-        <Text>{JSON.stringify(location)}</Text>
         <Text>{errorMsg}</Text>
         <Text>{latlong}</Text>
         
