@@ -2,7 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
@@ -20,12 +20,15 @@ export default function HomeScreen() {
   this.leafletView;
   //
   var markers = [
-    {lat:-37.7881,long:535.31597},
+    {lat:-37.7881,long:175.31595,id:"00001",message:"Riddle 1"},
+    {lat:-37.7872,long:175.315,id:"00002",message:"Riddle 2"}
   ]
 
   // state stuff (when you use setLocation, React updates places in the page where you used location.
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [latlong, setlatlong] = React.useState(null);
+  const [markerInfo, setMarkerInfo] = React.useState("");
+  
 
 
   // doing the location
@@ -49,20 +52,38 @@ export default function HomeScreen() {
 
 
   // EVENTS
-  function onLeafletviewResolved(reference){
+  this.onLeafletviewResolved = (reference)=>{
     this.leafletView = reference;
     // initiliser for leafletView -anything we want to do onload goes here
-    setTimeout(()=>{
-      for(marker of markers){
-        this.leafletView.addMarker(marker.lat,marker.long,this.leafletView.icons.gold,"this is an marker")
-      }
-    },1000)
-    
 
+    if(reference != undefined && this.leafletView.initalised == false){
+      //for some reason react runs this multiple times, so I made this initalised variable
+      this.leafletView.initalised = true;
+      markers.forEach((marker)=>{
+        // for some reason markers were being added multiple times.
+        this.leafletView.addMarker(marker.lat,marker.long,this.leafletView.icons.gold,marker.message,marker.id)
+      })
+    }
   }
   // location button
-  this.centerOnLocation = ()=>{
+  centerOnLocation = ()=>{
     this.leafletView.panTo(this.location.lat,this.location.long);
+  }
+  onMapItemClick = (markerID)=>{
+    setMarkerInfo(markerID);
+    Alert.alert(
+      "Marker ID",
+      markerID,
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") }
+      ],
+      { cancelable: false }
+    );
   }
   
   return (
@@ -71,14 +92,15 @@ export default function HomeScreen() {
       <LeafletView
       // we have to use a ref, because we can't always pass stuff in as props because
       // we don't want to create a new instance of a webview every time we change something
-      ref={onLeafletviewResolved}
+      ref={this.onLeafletviewResolved}
+      onMapItemClick={this.onMapItemClick}
       ></LeafletView>
       </View>
-      <Button onPress={this.centerOnLocation} title="◎"></Button>
+      <Button onPress={centerOnLocation} title="◎"></Button>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}> 
-        
         <Text>{errorMsg}</Text>
         <Text>{latlong}</Text>
+        <Text>Last selected marker ID: {markerInfo}</Text>
         
         <View style={styles.helpContainer}>
           <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
@@ -214,4 +236,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2e78b7',
   },
+  mapStyle: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height/2,
+  },
+
 });
