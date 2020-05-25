@@ -1,241 +1,94 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import * as Permissions from 'expo-permissions';
-import * as Location from 'expo-location';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
 
-import LeafletView from  "../components/LeafletView"
+import Map from  "../components/Map"
 
+var riddles = [
+  {lat:-37.7881,long:175.31595,icon:Map.icons.gold,message:"Title of riddle"},
+  {lat:-37.7843,long:175.315,icon:Map.icons.silver,message:"Riddle completed ok"},
+  {lat:-37.7910,long:175.3155,icon:Map.icons.qMark,message:"Unsolved Riddle Title"},
+  {lat:-37.7830,long:175.314,icon:Map.icons.eMark,message:"Title of Event"},
+  {lat:-37.7879,long:175.3145,icon:Map.icons.bronze,message:"Title of basic completed riddle"}
+]
 
 export default function HomeScreen() {
-  // holds our current location
-  this.location = {
-    lat:0,
-    long:0,
-  }
-  // the reference to the Leafletview
-  this.leafletView;
-  //
-  var markers = [
-    {lat:-37.7881,long:175.31595,id:"00001",message:"Riddle 1"},
-    {lat:-37.7872,long:175.315,id:"00002",message:"Riddle 2"}
-  ]
+  // the reference to the map
+  this.map;
 
   // state stuff (when you use setLocation, React updates places in the page where you used location.
   const [errorMsg, setErrorMsg] = React.useState(null);
-  const [latlong, setlatlong] = React.useState(null);
+  const [lat, setlat] = React.useState(null);
+  const [lng, setlng] = React.useState(null);
   const [markerInfo, setMarkerInfo] = React.useState("");
   
-
-
-  // doing the location
-  React.useEffect(() => {
-    Location.requestPermissionsAsync()
-    .then(
-      status => Location.getCurrentPositionAsync({})
-    ).then(location=>{
-      this.location.lat = location.coords.latitude
-      this.location.long = location.coords.longitude;
-      setlatlong(location.coords.latitude+ "   " + location.coords.longitude)
-      this.leafletView.updateLocation(this.location.lat,this.location.long)
-      setErrorMsg("");
-    }).catch(err=>{
-      setErrorMsg('Something went wrong. ' + err);
-    })
-
-    
-  });
-
-
-
   // EVENTS
-  this.onLeafletviewResolved = (reference)=>{
-    this.leafletView = reference;
-    // initiliser for leafletView -anything we want to do onload goes here
+  onMapLoaded = ()=>{
+    riddles.forEach((riddle)=>{
+      riddle.marker = this.map.addMarker(riddle.lat,riddle.long,riddle.icon,riddle.message)
+    })
+    this.map.changeMarkerIcon(riddles[1].marker,Map.icons.silver)
+    this.map.changeMarkerPopup(riddles[4].marker,"Changed Title of Riddle")
+  }
 
-    if(reference != undefined && this.leafletView.initalised == false){
-      //for some reason react runs this multiple times, so I made this initalised variable
-      this.leafletView.initalised = true;
-      markers.forEach((marker)=>{
-        // for some reason markers were being added multiple times.
-        this.leafletView.addMarker(marker.lat,marker.long,this.leafletView.icons.gold,marker.message,marker.id)
-      })
-    }
+  onLocationUpdate = (lat,lng)=>{
+    setlat(lat);
+    setlng(lng);
   }
-  // location button
-  centerOnLocation = ()=>{
-    this.leafletView.panTo(this.location.lat,this.location.long);
+
+  onLocationError = (err) =>{
+    setErrorMsg(err);
   }
-  onMapItemClick = (markerID)=>{
-    setMarkerInfo(markerID);
-    Alert.alert(
-      "Marker ID",
-      markerID,
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel"
-        },
-        { text: "OK", onPress: () => console.log("OK Pressed") }
-      ],
-      { cancelable: false }
-    );
+
+  onMarkerClick = (markerID)=>{
+    console.log(markerID)
+    var riddle = riddles.find(element => (element.marker == markerID ))
+    console.log(riddles)
+    //if(riddle == undefined) return;
+    setMarkerInfo(riddle.message);
   }
   
   return (
     <View style={styles.container}>
-      <View style={{height: 400}} >
-      <LeafletView
+      <View style={{height:400}}>
+      {/*THE MAP*/}
+      <Map 
       // we have to use a ref, because we can't always pass stuff in as props because
       // we don't want to create a new instance of a webview every time we change something
-      ref={this.onLeafletviewResolved}
-      onMapItemClick={this.onMapItemClick}
-      ></LeafletView>
+      ref={(ref)=>{this.map = ref}}
+      onLoad={onMapLoaded}
+      onMarkerClick={onMarkerClick}
+      onLocationUpdate={onLocationUpdate}
+      onLocationError={onLocationError}
+      ></Map>
       </View>
-      <Button onPress={centerOnLocation} title="◎"></Button>
+
+      {/*The text at the bottom*/}
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}> 
-        <Text>{errorMsg}</Text>
-        <Text>{latlong}</Text>
+        <Text>Lattitude:{lat} Longitude:{lng}</Text>
         <Text>Last selected marker ID: {markerInfo}</Text>
-        
-        <View style={styles.helpContainer}>
-          <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-          </TouchableOpacity>
-        </View>
+        <Text>{errorMsg}</Text>
       </ScrollView>
+
     </View>
   );
 }
 
-HomeScreen.navigationOptions = {
-  header: null,
-};
 
-function DevelopmentModeNotice() {
-  if (__DEV__) {
-    const learnMoreButton = (
-      <Text onPress={handleLearnMorePress} style={styles.helpLinkText}>
-        Learn more
-      </Text>
-    );
-
-    return (
-      <Text style={styles.developmentModeText}>
-        Development mode is enabled: your app will be slower but you can use useful development
-        tools. {learnMoreButton}
-      </Text>
-    );
-  } else {
-    return (
-      <Text style={styles.developmentModeText}>
-        You are not in development mode: your app will run at full speed.
-      </Text>
-    );
-  }
-}
-
-function handleLearnMorePress() {
-  WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/workflow/development-mode/');
-}
-
-function handleHelpPress() {
-  WebBrowser.openBrowserAsync(
-    'https://docs.expo.io/versions/latest/get-started/create-a-new-app/#making-your-first-change'
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
-  developmentModeText: {
-    marginBottom: 20,
-    color: 'rgba(0,0,0,0.4)',
-    fontSize: 14,
-    lineHeight: 19,
-    textAlign: 'center',
-  },
   contentContainer: {
-    paddingTop: 30,
+    paddingTop:30,
   },
-  welcomeContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  welcomeImage: {
-    width: 100,
-    height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
-  },
-  getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50,
-  },
-  homeScreenFilename: {
-    marginVertical: 7,
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)',
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4,
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 20,
-      },
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20,
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center',
-  },
-  navigationFilename: {
-    marginTop: 5,
-  },
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  helpLink: {
-    paddingVertical: 15,
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7',
-  },
+
   mapStyle: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height/2,
