@@ -35,9 +35,9 @@ export default function HomeScreen() {
     this.map.changeMarkerPopup(riddles[4].marker,"Changed Title of Riddle")
   }
 
-  onLocationUpdate = (lat,lng)=>{
-    setlat(lat);
-    setlng(lng);
+  onLocationUpdate = (newlat,newlng)=>{
+    setlat(newlat);
+    setlng(newlng);
   }
 
   onLocationError = (err) =>{
