@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
+import Database from './components/Database';
 
 const Stack = createStackNavigator();
 /*
@@ -22,6 +23,7 @@ export default function App(props) {
   const [initialNavigationState, setInitialNavigationState] = React.useState();
   const containerRef = React.useRef();
   const { getInitialState } = useLinking(containerRef);
+  global.database = new Database();
 
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {

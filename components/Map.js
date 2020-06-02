@@ -6,7 +6,7 @@ import { ProgressBarAndroid } from 'react-native';
 // here all the map code can go for talking to the webview
 // https://leafletjs.com/examples/quick-start/
 // https://github.com/react-native-community/react-native-webview/blob/master/docs/Guide.md#react-native-webview-guide
-
+global.___mapLoaded = false;
 export default class Map extends React.Component {
     
     webviewHTML = `
@@ -73,6 +73,9 @@ icon_location = L.icon({
     iconUrl:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAfCAYAAADjuz3zAAAACXBIWXMAAABoAAAAaAGj5no8AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAQlJREFUSInt1LEuBFEYhuHnzEYhREHBFehQkjWynUIjLsAtKDRKjQuQbKNwHaJE7Eah1JEQlUSxhWJDdmcUq9qZ3ZlVKGTe8v/+856vODlUVFT8PaFw4yZdFdnGIjoiV+qh/XtxO52XOMdeTtrSt68RnicT36Vzem6xMqbUG9bF4TUvjHKP9JwUSGEJZ6PCbON2Oi3xjpkC8YC+ZY3wODzONk6slZYODBv542FSs6WlA0PuflZc8zKROJH7MrLienjCQ0ltR811OfGAI6SF2uBYPXTLi+NwgUMkY7RNm6E5KhzVmDicimzhEl8/0wQt7IrDwZhLS/wVcJ9O+bCgq2MnfJY6U1HxD/gGtcQ1xF0jExIAAAAASUVORK5CYII=",
     iconAnchor: [11, 15],
 })
+// create circle group
+var circleGroup = L.layerGroup()
+circleGroup.addTo(map)
 // create marker group
 var markerGroup = L.layerGroup()
 markerGroup.addTo(map)
@@ -101,7 +104,7 @@ function postMsg(message){
             locationMarker.setLatLng([`+location.coords.latitude+`,`+location.coords.longitude+`])
             `)
             // call onlocationupdate
-            this.props.onLocationUpdate(location.latitude,location.longitude)
+            this.props.onLocationUpdate(location.coords.latitude,location.coords.longitude)
         }).catch(err=>{
             this.props.onLocationError(err)
         })
@@ -115,10 +118,10 @@ function postMsg(message){
 
 
     // Events
-    loaded = false;
+    
     _onWebviewMessage = (event)=>{
         if(event.nativeEvent.data == "load"){
-            if(!this.loaded){this.props.onLoad();this.loaded = true;}
+            if(!global.___mapLoaded){this.props.onLoad();global.___mapLoaded = true;}
             return;
         }
         this.props.onMarkerClick(event.nativeEvent.data);
@@ -161,19 +164,45 @@ function postMsg(message){
     }
 
     markerCount = 0;
-    addMarker(lat,long,icon,popupMsg){
+    addMarker(lat,long,icon,popupMsg,circleinfo){
+        /*
+        lat: number
+        long: number
+        icon: Map.icon.something
+        popupMsg: string
+        circleinfo : object {
+            circleColor: (default "red", html color string)
+            circleRadius: (default 20)
+        }
+        
+        */
+        
+        
         this.markerCount++;
         this.webref.injectJavaScript(`
             var mkr`+this.markerCount+` = L.marker([`+lat+`,`+long+`],{icon:`+icon+`}).addTo(markerGroup)
         `)
+        // if there is a popup message
         if(popupMsg != null && popupMsg != undefined && popupMsg !=""){
             this.webref.injectJavaScript(`
                 mkr`+this.markerCount+`.bindPopup();
                 mkr`+this.markerCount+`.setPopupContent("`+popupMsg+this._generateLink(this.markerCount)+`")
             `)
         }
+        // if there is circle info object
+        if(circleinfo!= undefined && circleinfo != null){
+            this.webref.injectJavaScript(`
+            var circ`+this.markerCount+` = L.circle([`+lat+`,`+long+`],{
+                color: "`+((circleinfo.circleColor != undefined) ? circleinfo.circleColor : `red`)+`",
+                fillColor: "`+((circleinfo.circleColor != undefined) ? circleinfo.circleColor : `red`)+`",
+                fillOpacity: 0.5,
+                radius: `+((circleinfo.circleRadius != undefined) ? circleinfo.circleRadius : `20`)+`,
+            }).addTo(circleGroup)
+            `)
+        }
         return this.markerCount.toString();// that way we can store the id of each marker
     }
+
     removeMarker(marker){
         this.webref.injectJavaScript("markerGroup.removeLayer(mkr"+marker+")");
     }
