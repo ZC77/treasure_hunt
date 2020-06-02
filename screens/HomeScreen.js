@@ -21,7 +21,10 @@ export default function HomeScreen() {
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [lat, setlat] = React.useState(null);
   const [lng, setlng] = React.useState(null);
-  const [riddleIndex, setRiddleIndex] = React.useState(0);
+  const [markerInfo, setMarkerInfo] = React.useState("");
+
+  // To toggle modal visibility
+  const [inGame, setInGame] = React.useState(false)
   
   // EVENTS
   const onMapLoaded = async ()=>{
@@ -99,19 +102,19 @@ export default function HomeScreen() {
     
     <View style={styles.container}>
       <View style = {styles.cardContainer}>
-      <Card style = {styles.statsCard}>
-        <View style={{height:350}}>
-        {/*THE MAP*/}
-          <Map 
-          // we have to use a ref, because we can't always pass stuff in as props because
-          // we don't want to create a new instance of a webview every time we change something
-          ref={(ref)=>{this.map = ref}}
-          onLoad={onMapLoaded}
-          onMarkerClick={onMarkerClick}
-          onLocationUpdate={onLocationUpdate}
-          onLocationError={onLocationError}
-          ></Map>
-        </View>
+      <Card style = {styles.mapCard}>
+      <View style={{height:350}}>
+      {/*THE MAP*/}
+      <Map 
+      // we have to use a ref, because we can't always pass stuff in as props because
+      // we don't want to create a new instance of a webview every time we change something
+      ref={(ref)=>{this.map = ref}}
+      onLoad={onMapLoaded}
+      onMarkerClick={onMarkerClick}
+      onLocationUpdate={onLocationUpdate}
+      onLocationError={onLocationError}
+      ></Map>
+      </View>
       </Card>
       </View>
       <View style = {styles.buttonContainer}>
@@ -133,8 +136,11 @@ export default function HomeScreen() {
         </Card>
       </View>
 
-      
-      <Text>{errorMsg}</Text>
+      <View style = {styles.buttonContainer}>
+      <Button title = "Start game" color = {Colors.primary} onPress = {() => setInGame(true)}></Button>
+      <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}></InGameModal>
+      </View>
+
     </View>
   );
 }
@@ -162,12 +168,25 @@ const styles = StyleSheet.create({
   statsCard: {
     width: '92%',
     justifyContent: 'space-between',
-    
+
+  },
+
+  statsCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+  },
+
+  mapCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+    padding: 0,
+    overflow: 'hidden'
   },
 
   cardContainer: {
     alignItems: 'center',
-    paddingVertical: 10
+    paddingVertical: 10,
+    borderRadius: 12
   },
 
   buttonContainer : {

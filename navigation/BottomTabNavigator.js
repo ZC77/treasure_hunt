@@ -52,7 +52,7 @@ function getHeaderTitle(route) {
   switch (routeName) {
     case 'Home':
       return 'Subject of a treasure hunt';
-    case 'Links':
+    case 'Locations':
       return 'Locations';
     case 'Achievements':
       return'Achievements';

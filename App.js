@@ -14,7 +14,7 @@ import Database from './components/Database';
 const Stack = createStackNavigator();
 /*
 NOTES:
-This app has mutliple screens - they are found in HomeScreen.js and LinkScreen.js
+This app has mutliple screens - they are found in HomeScreen.js and LocationScreen.js
 This file sets up the navigation tabs between the 2 screens.
 Have a look at the expo docs (docs.expo.io) it's probably best to stick to their libraries
 as much as we can, because this is a react-native app built using expo.
