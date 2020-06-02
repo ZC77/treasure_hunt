@@ -12,7 +12,7 @@ export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
-  navigation.setOptions({ headerTitle: getHeaderTitle(route) });
+  navigation.setOptions({ headerTitle: getHeaderTitle(route)});
 
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
@@ -20,16 +20,25 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="Home"
         component={HomeScreen}
         options={{
-          title: 'Get Started',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-code-working" />,
+          title: 'Home',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="home" />,
         }}
       />
       <BottomTab.Screen
         name="Links"
         component={LinksScreen}
         options={{
-          title: 'Resources',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+          title: 'Locations',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="map" />,
+
+        }}
+      />
+      <BottomTab.Screen
+        name="Achievements"
+        component={LinksScreen}
+        options={{
+          title: 'Achievements',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="trophy" />,
         }}
       />
     </BottomTab.Navigator>
@@ -41,8 +50,10 @@ function getHeaderTitle(route) {
 
   switch (routeName) {
     case 'Home':
-      return 'How to get started';
+      return 'Subject of a treasure hunt';
     case 'Links':
-      return 'Links to learn more';
+      return 'Locations';
+    case 'Achievements':
+      return'Achievements';
   }
 }

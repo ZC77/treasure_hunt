@@ -7,6 +7,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { MonoText } from '../components/StyledText';
 
 import Map from  "../components/Map"
+import Card from "../ui_elements/card"
+import Colors from "../constants/Colors"
 
 global.riddles = [
   {id:"1",lat:-37.7881,long:175.31595,message:"Title of riddle"},
@@ -69,7 +71,10 @@ export default function HomeScreen() {
   
   return (
     <View style={styles.container}>
-      <View style={{height:400}}>
+
+      <View style = {styles.cardContainer}>
+      <Card style = {styles.statsCard}>
+      <View style={{height:350}}>
       {/*THE MAP*/}
       <Map 
       // we have to use a ref, because we can't always pass stuff in as props because
@@ -81,13 +86,21 @@ export default function HomeScreen() {
       onLocationError={onLocationError}
       ></Map>
       </View>
+      </Card>
+      </View>
 
       {/*The text at the bottom*/}
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}> 
-        <Text>Lattitude:{lat} Longitude:{lng}</Text>
-        <Text>Last selected marker ID: {markerInfo}</Text>
-        <Text>{errorMsg}</Text>
-      </ScrollView>
+      <View style = {styles.cardContainer}>
+        <Card style = {styles.statsCard}>
+          <Text style = {styles.text}>Lattitude:{lat} Longitude:{lng}</Text>
+          <Text style = {styles.text}>Last selected marker ID: {markerInfo}</Text>
+          <Text>{errorMsg}</Text>
+        </Card>
+      </View>
+
+      <View style = {styles.buttonContainer}>
+      <Button title = "Start game" color = {Colors.primary}></Button>
+      </View>
 
     </View>
   );
@@ -108,5 +121,28 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height/2,
   },
+
+  text: {
+    color: 'black',
+  },
+
+  statsCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+
+  cardContainer: {
+    alignItems: 'center',
+    paddingVertical: 10
+  },
+
+  buttonContainer : {
+    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginVertical: 25
+  }
 
 });
