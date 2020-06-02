@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { RectButton, ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import Card from "../ui_elements/card"
 
 const qmark = require("../assets/images/qmarkHD.png")
@@ -22,10 +22,13 @@ export default function LocationsScreen() {
     if(riddle.r3 == true) count++;
     if (count != 0) continue; // only show uncompleted riddles
     uncompletedRiddles.push(
+      
       <Card key={index}>
-        <Image source={qmark} />
-        <Text>{riddle.title}</Text>
-        <Text>{riddle.blurb}</Text>
+        <TouchableOpacity>
+          <Image source={qmark} />
+          <Text style = {styles.textHeading}>{riddle.title}</Text>
+          <Text style = {styles.textBody}>{riddle.blurb}</Text>
+        </TouchableOpacity>
       </Card>
     )
   }
@@ -40,6 +43,10 @@ export default function LocationsScreen() {
     </ScrollView>
   );
 }
+// JUST A REMINDER
+// JustifyContent = alignment on along the primary axis (Y axis)
+// AlignItems = alignment along the secodary axis (X axis)
+// By default flexdirection is set to column, changing it to row will make secondary axis become primary
 
 const styles = StyleSheet.create({
   container: {
@@ -49,5 +56,22 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingTop: 15,
   },
+  cardLayout: {
+    margin: 10,
+    width: '92%'
+  },
+  textHeading: {
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    fontWeight: 'bold',
+    fontSize: 22
+
+  },
+
+  textBody: {
+    alignItems: 'flex-start',
+    justifyContent: 'space-around'
+
+  }
 })
 

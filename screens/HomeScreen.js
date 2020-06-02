@@ -5,6 +5,7 @@ import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dime
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
+import InGameModal from '../screens/InGameModal.js'
 
 import Map from  "../components/Map"
 import Card from "../ui_elements/card"
@@ -21,7 +22,8 @@ export default function HomeScreen() {
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [lat, setlat] = React.useState(null);
   const [lng, setlng] = React.useState(null);
-  const [markerInfo, setMarkerInfo] = React.useState("");
+  const [riddleIndex, setRiddleIndex] = React.useState(0);
+
 
   // To toggle modal visibility
   const [inGame, setInGame] = React.useState(false)
@@ -120,7 +122,12 @@ export default function HomeScreen() {
       <View style = {styles.buttonContainer}>
       <Button title = "Start game" color = {Colors.primary} onPress={onRiddleAnswerEntered/*Just for testing*/}></Button>
       </View>
-      {/*Turn this into a modal with riddle information??????*/}
+      
+
+      <View style = {styles.buttonContainer}>
+      <Button title = "Start game" color = {Colors.primary} onPress = {() => setInGame(true)}></Button>
+      </View>
+      <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}>
       <View style = {styles.cardContainer}>
         <Card style = {styles.statsCard}>
           {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
@@ -135,11 +142,7 @@ export default function HomeScreen() {
           }
         </Card>
       </View>
-
-      <View style = {styles.buttonContainer}>
-      <Button title = "Start game" color = {Colors.primary} onPress = {() => setInGame(true)}></Button>
-      <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}></InGameModal>
-      </View>
+      </InGameModal>
 
     </View>
   );

@@ -1,12 +1,12 @@
 import React from 'react'
-import {View, Text, TextInput, Button, StyleSheet, Modal} from 'react-native'
+import {View,ScrollView, Text, TextInput, Button, StyleSheet, Modal} from 'react-native'
 
 const InGameModal = props => {
 
     return (
         <Modal visible = {props.visible} animationType = 'fade'>
             <View style = {styles.Container}>
-                <Text style = {styles.TextHeading}>Modal popup</Text>
+                {props.children}
                 <Button title = "Return" onPress = {props.onReturn}/>
             </View>
         </Modal>
