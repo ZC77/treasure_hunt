@@ -10,6 +10,8 @@ import Map from  "../components/Map"
 import Card from "../ui_elements/card"
 import Colors from "../constants/Colors"
 
+import InGameModal from "../screens/InGameModal"
+
 global.riddles = [
   {id:"1",lat:-37.7881,long:175.31595,message:"Title of riddle"},
   {id:"2",lat:-37.7843,long:175.315,message:"Riddle completed ok"},
@@ -27,6 +29,9 @@ export default function HomeScreen() {
   const [lat, setlat] = React.useState(null);
   const [lng, setlng] = React.useState(null);
   const [markerInfo, setMarkerInfo] = React.useState("");
+
+  // To toggle modal visibility
+  const [inGame, setInGame] = React.useState(false)
   
   // EVENTS
   onMapLoaded = ()=>{
@@ -73,7 +78,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
 
       <View style = {styles.cardContainer}>
-      <Card style = {styles.statsCard}>
+      <Card style = {styles.mapCard}>
       <View style={{height:350}}>
       {/*THE MAP*/}
       <Map 
@@ -99,7 +104,8 @@ export default function HomeScreen() {
       </View>
 
       <View style = {styles.buttonContainer}>
-      <Button title = "Start game" color = {Colors.primary}></Button>
+      <Button title = "Start game" color = {Colors.primary} onPress = {() => setInGame(true)}></Button>
+      <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}></InGameModal>
       </View>
 
     </View>
@@ -129,12 +135,25 @@ const styles = StyleSheet.create({
   statsCard: {
     width: '92%',
     justifyContent: 'space-between',
-    alignItems: 'center'
+
+  },
+
+  statsCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+  },
+
+  mapCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+    padding: 0,
+    overflow: 'hidden'
   },
 
   cardContainer: {
     alignItems: 'center',
-    paddingVertical: 10
+    paddingVertical: 10,
+    borderRadius: 12
   },
 
   buttonContainer : {

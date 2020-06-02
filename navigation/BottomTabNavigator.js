@@ -3,7 +3,8 @@ import * as React from 'react';
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
-import LinksScreen from '../screens/LinksScreen';
+import LocationScreen from '../screens/LocationScreen';
+import AchievementScreen from '../screens/AchievementScreen'
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Home';
@@ -25,8 +26,8 @@ export default function BottomTabNavigator({ navigation, route }) {
         }}
       />
       <BottomTab.Screen
-        name="Links"
-        component={LinksScreen}
+        name="Locations"
+        component={LocationScreen}
         options={{
           title: 'Locations',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="map" />,
@@ -35,7 +36,7 @@ export default function BottomTabNavigator({ navigation, route }) {
       />
       <BottomTab.Screen
         name="Achievements"
-        component={LinksScreen}
+        component={AchievementScreen}
         options={{
           title: 'Achievements',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="trophy" />,
@@ -51,7 +52,7 @@ function getHeaderTitle(route) {
   switch (routeName) {
     case 'Home':
       return 'Subject of a treasure hunt';
-    case 'Links':
+    case 'Locations':
       return 'Locations';
     case 'Achievements':
       return'Achievements';
