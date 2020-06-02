@@ -10,49 +10,49 @@ import Map from  "../components/Map"
 import Card from "../ui_elements/card"
 import Colors from "../constants/Colors"
 
-global.riddles = [
-  {id:"1",lat:-37.7881,long:175.31595,message:"Title of riddle"},
-  {id:"2",lat:-37.7843,long:175.315,message:"Riddle completed ok"},
-  {id:"4",lat:-37.7910,long:175.3155,message:"Unsolved Riddle Title"},
-  {id:"5",lat:-37.7830,long:175.314,message:"Title of Event"},
-  {id:"6",lat:-37.7879,long:175.3145,message:"Title of basic completed riddle"}
-]
-
 export default function HomeScreen() {
   // the reference to the map
   this.map;
+
+  // global state
+  const [state, dispatch] = global.useTracked();
 
   // state stuff (when you use setLocation, React updates places in the page where you used location.
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [lat, setlat] = React.useState(null);
   const [lng, setlng] = React.useState(null);
-  const [markerInfo, setMarkerInfo] = React.useState("");
+  const [riddleIndex, setRiddleIndex] = React.useState(0);
   
   // EVENTS
-  onMapLoaded = ()=>{
-    console.log("MAPLOADED")
-    global.riddles.forEach((riddle)=>{
-      global.database.getRiddleStatus(riddle.id).then((result)=>{
-        riddle.r1 = result.r1;
-        riddle.r2 = result.r2;
-        riddle.r3 = result.r3;
-        // display map icon based on number of riddles solved
-        var count = 0;
-        if(riddle.r1 == true) count++;
-        if(riddle.r2 == true) count++;
-        if(riddle.r3 == true) count++;
-        var icon = Map.icons.qMark
-        if(count== 1) icon = Map.icons.bronze
-        else if(count==2) icon = Map.icons.silver
-        else if(count==3) icon = Map.icons.gold
+  const onMapLoaded = async ()=>{
+    //get the riddles
+    riddles = await global.database.fetchRiddles()
+    var discoveredRiddle = true;
+    for(var riddle of riddles){
+      // get the riddle statuses and add them to the riddle state
+      result = await global.database.getRiddleStatus(riddle.id)
+      riddle.r1 = result.r1;
+      riddle.r2 = result.r2;
+      riddle.r3 = result.r3;
+      // display map icon based on number of riddles solved
+      var count = 0;
+      if(riddle.r1 == true) count++;
+      if(riddle.r2 == true) count++;
+      if(riddle.r3 == true) count++;
+      var icon = Map.icons.qMark
+      if(count == 1) icon = Map.icons.bronze
+      else if(count==2) icon = Map.icons.silver
+      else if(count==3) icon = Map.icons.gold
+      if(discoveredRiddle)riddle.marker = this.map.addMarker(riddle.generalLocationX,riddle.generalLocationY,icon,riddle.title,)
+      // if this riddle is unsolved, don't show the rest of the riddles)
+      if(count == 0) discoveredRiddle = false;
+      
+    }
+    //now we've changed the riddles to how we like, update the state
+    dispatch({type:"update",data:{riddles:riddles}});
+    
 
-        riddle.marker = this.map.addMarker(riddle.lat,riddle.long,icon,riddle.message,)
-      })
-    })
-    this.map.changeMarkerIcon(riddles[1].marker,Map.icons.silver)
-    this.map.changeMarkerPopup(riddles[4].marker,"Changed Title of Riddle")
   }
-
   onLocationUpdate = (newlat,newlng)=>{
     setlat(newlat);
     setlng(newlng);
@@ -63,45 +63,78 @@ export default function HomeScreen() {
   }
 
   onMarkerClick = (marker)=>{
-    var riddle = global.riddles.find(element => (element.marker == marker ))
-    console.log(marker)
+    var ri = state.riddles.findIndex(element => (element.marker == marker ))
     //if(riddle == undefined) return;
-    setMarkerInfo(riddle.message);
+    setRiddleIndex(ri)
+  }
+
+  onRiddleAnswerEntered = ()=>{
+  /**
+     * This is an example of how you would set a riddle to found in the database
+     * once the user has put in the correct input
+     * note: you need the index of the riddle you are updating
+     */
+    var index = 0;
+    dispatch({
+      type:"setRiddleStatus",
+      riddleIndex:index,
+      data:{
+        r1:true,
+      }
+    })
+    // at the same time, you need to update the map icon, and show the next item in the list
+    console.log(state.riddles[0])
+    this.map.changeMarkerIcon(state.riddles[index].marker,Map.icons.bronze)
+    if(state.riddles[index+1] != undefined)
+    this.map.addMarker(state.riddles[index+1].generalLocationX,
+      state.riddles[index+1].generalLocationY,
+      Map.icons.qMark,
+      state.riddles[index].title,
+    )
   }
   
-  return (
-    <View style={styles.container}>
+  
 
+  return (
+    
+    <View style={styles.container}>
       <View style = {styles.cardContainer}>
       <Card style = {styles.statsCard}>
-      <View style={{height:350}}>
-      {/*THE MAP*/}
-      <Map 
-      // we have to use a ref, because we can't always pass stuff in as props because
-      // we don't want to create a new instance of a webview every time we change something
-      ref={(ref)=>{this.map = ref}}
-      onLoad={onMapLoaded}
-      onMarkerClick={onMarkerClick}
-      onLocationUpdate={onLocationUpdate}
-      onLocationError={onLocationError}
-      ></Map>
-      </View>
+        <View style={{height:350}}>
+        {/*THE MAP*/}
+          <Map 
+          // we have to use a ref, because we can't always pass stuff in as props because
+          // we don't want to create a new instance of a webview every time we change something
+          ref={(ref)=>{this.map = ref}}
+          onLoad={onMapLoaded}
+          onMarkerClick={onMarkerClick}
+          onLocationUpdate={onLocationUpdate}
+          onLocationError={onLocationError}
+          ></Map>
+        </View>
       </Card>
       </View>
-
-      {/*The text at the bottom*/}
+      <View style = {styles.buttonContainer}>
+      <Button title = "Start game" color = {Colors.primary} onPress={onRiddleAnswerEntered/*Just for testing*/}></Button>
+      </View>
+      {/*Turn this into a modal with riddle information??????*/}
       <View style = {styles.cardContainer}>
         <Card style = {styles.statsCard}>
-          <Text style = {styles.text}>Lattitude:{lat} Longitude:{lng}</Text>
-          <Text style = {styles.text}>Last selected marker ID: {markerInfo}</Text>
-          <Text>{errorMsg}</Text>
+          {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
+          <ScrollView>
+            <Text>{state.riddles[riddleIndex].title}</Text>
+            <Text>{state.riddles[riddleIndex].blurb}</Text>
+            <Text>{state.riddles[riddleIndex].riddle1}</Text>
+            <Text>{state.riddles[riddleIndex].answer1}</Text>
+            <Text>{state.riddles[riddleIndex].riddle2}</Text>
+            <Text>{state.riddles[riddleIndex].riddle1}</Text>
+          </ScrollView>
+          }
         </Card>
       </View>
 
-      <View style = {styles.buttonContainer}>
-      <Button title = "Start game" color = {Colors.primary}></Button>
-      </View>
-
+      
+      <Text>{errorMsg}</Text>
     </View>
   );
 }
@@ -129,7 +162,7 @@ const styles = StyleSheet.create({
   statsCard: {
     width: '92%',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    
   },
 
   cardContainer: {
