@@ -7,13 +7,15 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { MonoText } from '../components/StyledText';
 
 import Map from  "../components/Map"
+import Card from "../ui_elements/card"
+import Colors from "../constants/Colors"
 
-var riddles = [
-  {lat:-37.7881,long:175.31595,icon:Map.icons.gold,message:"Title of riddle"},
-  {lat:-37.7843,long:175.315,icon:Map.icons.silver,message:"Riddle completed ok"},
-  {lat:-37.7910,long:175.3155,icon:Map.icons.qMark,message:"Unsolved Riddle Title"},
-  {lat:-37.7830,long:175.314,icon:Map.icons.eMark,message:"Title of Event"},
-  {lat:-37.7879,long:175.3145,icon:Map.icons.bronze,message:"Title of basic completed riddle"}
+global.riddles = [
+  {id:"1",lat:-37.7881,long:175.31595,message:"Title of riddle"},
+  {id:"2",lat:-37.7843,long:175.315,message:"Riddle completed ok"},
+  {id:"4",lat:-37.7910,long:175.3155,message:"Unsolved Riddle Title"},
+  {id:"5",lat:-37.7830,long:175.314,message:"Title of Event"},
+  {id:"6",lat:-37.7879,long:175.3145,message:"Title of basic completed riddle"}
 ]
 
 export default function HomeScreen() {
@@ -28,8 +30,24 @@ export default function HomeScreen() {
   
   // EVENTS
   onMapLoaded = ()=>{
-    riddles.forEach((riddle)=>{
-      riddle.marker = this.map.addMarker(riddle.lat,riddle.long,riddle.icon,riddle.message)
+    console.log("MAPLOADED")
+    global.riddles.forEach((riddle)=>{
+      global.database.getRiddleStatus(riddle.id).then((result)=>{
+        riddle.r1 = result.r1;
+        riddle.r2 = result.r2;
+        riddle.r3 = result.r3;
+        // display map icon based on number of riddles solved
+        var count = 0;
+        if(riddle.r1 == true) count++;
+        if(riddle.r2 == true) count++;
+        if(riddle.r3 == true) count++;
+        var icon = Map.icons.qMark
+        if(count== 1) icon = Map.icons.bronze
+        else if(count==2) icon = Map.icons.silver
+        else if(count==3) icon = Map.icons.gold
+
+        riddle.marker = this.map.addMarker(riddle.lat,riddle.long,icon,riddle.message,)
+      })
     })
     this.map.changeMarkerIcon(riddles[1].marker,Map.icons.silver)
     this.map.changeMarkerPopup(riddles[4].marker,"Changed Title of Riddle")
@@ -44,17 +62,19 @@ export default function HomeScreen() {
     setErrorMsg(err);
   }
 
-  onMarkerClick = (markerID)=>{
-    console.log(markerID)
-    var riddle = riddles.find(element => (element.marker == markerID ))
-    console.log(riddles)
+  onMarkerClick = (marker)=>{
+    var riddle = global.riddles.find(element => (element.marker == marker ))
+    console.log(marker)
     //if(riddle == undefined) return;
     setMarkerInfo(riddle.message);
   }
   
   return (
     <View style={styles.container}>
-      <View style={{height:400}}>
+
+      <View style = {styles.cardContainer}>
+      <Card style = {styles.statsCard}>
+      <View style={{height:350}}>
       {/*THE MAP*/}
       <Map 
       // we have to use a ref, because we can't always pass stuff in as props because
@@ -66,13 +86,21 @@ export default function HomeScreen() {
       onLocationError={onLocationError}
       ></Map>
       </View>
+      </Card>
+      </View>
 
       {/*The text at the bottom*/}
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}> 
-        <Text>Lattitude:{lat} Longitude:{lng}</Text>
-        <Text>Last selected marker ID: {markerInfo}</Text>
-        <Text>{errorMsg}</Text>
-      </ScrollView>
+      <View style = {styles.cardContainer}>
+        <Card style = {styles.statsCard}>
+          <Text style = {styles.text}>Lattitude:{lat} Longitude:{lng}</Text>
+          <Text style = {styles.text}>Last selected marker ID: {markerInfo}</Text>
+          <Text>{errorMsg}</Text>
+        </Card>
+      </View>
+
+      <View style = {styles.buttonContainer}>
+      <Button title = "Start game" color = {Colors.primary}></Button>
+      </View>
 
     </View>
   );
@@ -93,5 +121,28 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height/2,
   },
+
+  text: {
+    color: 'black',
+  },
+
+  statsCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+
+  cardContainer: {
+    alignItems: 'center',
+    paddingVertical: 10
+  },
+
+  buttonContainer : {
+    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginVertical: 25
+  }
 
 });
