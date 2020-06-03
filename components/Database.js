@@ -27,21 +27,20 @@ export default class Database{
     
     
     // check how much of a riddle is completed, by getting it from the database
-    getRiddleStatus(id){
-        return new Promise((resolve,reject)=>{
-            this.db.findOne({ _id: id + "" }, function (err, doc) {
-                // doc is the document
-                // If no document is found, doc is null
-                if(doc==null){
-                    // the riddle musn't be completed yet
-                    resolve({r1:false,r2:false,r3:false})
-                } else resolve(doc)
-            });
-        });
+    async getRiddleStatus(id){
+        doc = await this.db.findOneAsync({ _id: id + "" })
+        // doc is the document
+        // If no document is found, doc is null
+        if(doc==null || doc == undefined){
+            // the riddle musn't be completed yet
+            return {r1:false,r2:false,r3:false}
+        } else return doc
+        
+        
     }
 
     setRiddleStatus(id,status){
-        this.db.update({ _id: id+"" }, status, { upsert: true }, function (err, numReplaced, upsert) {
+        this.db.update({ _id: id+"" }, {_id: id+"",...status}, { upsert: true }, function (err, numReplaced, upsert) {
             // numReplaced = 1, upsert = status (the riddle status)
             // inserts or updates the data
             
