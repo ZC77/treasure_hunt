@@ -23,9 +23,9 @@ export default function LocationsScreen() {
     if (count != 0) continue; // only show uncompleted riddles
     uncompletedRiddles.push(
       
-      <Card key={index}>
+      <Card key={index} style = {styles.cardLayout}>
         <TouchableOpacity>
-          <Image source={qmark} />
+          <Image source={qmark} style = {styles.image} />
           <Text style = {styles.textHeading}>{riddle.title}</Text>
           <Text style = {styles.textBody}>{riddle.blurb}</Text>
         </TouchableOpacity>
@@ -45,7 +45,7 @@ export default function LocationsScreen() {
 }
 // JUST A REMINDER
 // JustifyContent = alignment on along the primary axis (Y axis)
-// AlignItems = alignment along the secodary axis (X axis)
+// AlignItems = alignment along the secondary axis (X axis)
 // By default flexdirection is set to column, changing it to row will make secondary axis become primary
 
 const styles = StyleSheet.create({
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   cardLayout: {
     margin: 10,
-    width: '92%'
+    width: '92%',
   },
   textHeading: {
     alignItems: 'flex-start',
@@ -72,6 +72,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-around'
 
+  },
+
+  image: {
+    width: 50,
+    height: 70,
   }
 })
 

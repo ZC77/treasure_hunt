@@ -27,7 +27,7 @@ export default function AchievementsScreen() {
     else if(count==2) icon = silver
     else if(count==3) icon = gold
     completedRiddles.push(
-      <Card key={index}>
+      <Card key={index} style = {styles.cardLayout}>
         <TouchableOpacity>
         <Image source={icon} />
           <Text style = {styles.textHeading}>{riddle.title}</Text>

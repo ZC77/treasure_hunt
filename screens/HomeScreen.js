@@ -1,7 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import * as Permissions from 'expo-permissions';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Alert } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Alert, TextInput } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
@@ -26,7 +26,10 @@ export default function HomeScreen() {
 
 
   // To toggle modal visibility
-  const [inGame, setInGame] = React.useState(false)
+  const [inGame, setInGame] = React.useState(false);
+
+  // To store user answer
+  const [enteredValue, setEnteredValue] = React.useState('');
   
   // EVENTS
   const onMapLoaded = async ()=>{
@@ -97,50 +100,85 @@ export default function HomeScreen() {
       state.riddles[index].title,
     )
   }
-  
-  
+
+  const confirmInputHandler = () => {
+
+    let answer = parseInt(enteredValue)
+
+    if (isNaN(answer))
+    {
+      Alert.alert('Invalid input', 'Your answer should be a number!', [{text: 'OK', onPress: resetInputHandler}])
+      return;
+    }
+    else if (answer != 4)
+    {
+      Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK', onPress: resetInputHandler}])
+      return;
+    }
+
+    Alert.alert('Correct', "You've unlocked the library!", [{text: 'Yay!', onPress: onRiddleAnswerEntered}])
+    setInGame(false);
+    setEnteredValue('');
+  }
+
+  const resetInputHandler = () => {
+    setEnteredValue('');
+  }
 
   return (
     
     <View style={styles.container}>
-      <View style = {styles.cardContainer}>
-      <Card style = {styles.mapCard}>
-      <View style={{height:350}}>
-      {/*THE MAP*/}
-      <Map 
-      // we have to use a ref, because we can't always pass stuff in as props because
-      // we don't want to create a new instance of a webview every time we change something
-      ref={(ref)=>{this.map = ref}}
-      onLoad={onMapLoaded}
-      onMarkerClick={onMarkerClick}
-      onLocationUpdate={onLocationUpdate}
-      onLocationError={onLocationError}
-      ></Map>
-      </View>
-      </Card>
-      </View>
+        <View style = {styles.cardContainer}>
+          <Card style = {styles.mapCard}>
+            <View style={{height:350}}>
+                 {/*THE MAP*/}
+                <Map 
+                  // we have to use a ref, because we can't always pass stuff in as props because
+                  // we don't want to create a new instance of a webview every time we change something
+                 ref={(ref)=>{this.map = ref}}
+                 onLoad={onMapLoaded}
+                onMarkerClick={onMarkerClick}
+                onLocationUpdate={onLocationUpdate}
+                onLocationError={onLocationError}
+              ></Map>
+            </View>
+          </Card>
+        </View>
+
       <View style = {styles.buttonContainer}>
-      <Button title = "Start game" color = {Colors.primary} onPress={onRiddleAnswerEntered/*Just for testing*/}></Button>
+       <Button title = "Complete first level (for testing only)" color = {Colors.accent} onPress={onRiddleAnswerEntered/*Just for testing*/}></Button>
+      
       </View>
       
 
       <View style = {styles.buttonContainer}>
       <Button title = "Start game" color = {Colors.primary} onPress = {() => setInGame(true)}></Button>
       </View>
+
       <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}>
       <View style = {styles.cardContainer}>
+
         <Card style = {styles.statsCard}>
           {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
           <ScrollView>
-            <Text>{state.riddles[riddleIndex].title}</Text>
-            <Text>{state.riddles[riddleIndex].blurb}</Text>
-            <Text>{state.riddles[riddleIndex].riddle1}</Text>
-            <Text>{state.riddles[riddleIndex].answer1}</Text>
-            <Text>{state.riddles[riddleIndex].riddle2}</Text>
-            <Text>{state.riddles[riddleIndex].riddle1}</Text>
+            <Text style = {styles.textHeading}>{state.riddles[riddleIndex].title}</Text>
+            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle1}</Text>
           </ScrollView>
           }
         </Card>
+
+        <TextInput 
+        style = {styles.input}
+        placeholder = 'Your answer here..'
+        blurOnSubmit
+        autoCapitalize = 'none'
+        autoCorrect = {false}
+        onChangeText = {setEnteredValue}
+        value = {enteredValue}
+        />
+
+        <Button title = "confirm" onPress = {confirmInputHandler}/>
+
       </View>
       </InGameModal>
 
@@ -171,12 +209,6 @@ const styles = StyleSheet.create({
   statsCard: {
     width: '92%',
     justifyContent: 'space-between',
-
-  },
-
-  statsCard: {
-    width: '92%',
-    justifyContent: 'space-between',
   },
 
   mapCard: {
@@ -197,7 +229,28 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     width: '100%',
-    marginVertical: 25
+    marginVertical: 15,
+  },
+
+  input: {
+    height: 30,
+    borderBottomColor: 'grey',
+    borderBottomWidth: 1,
+    marginVertical: 10
+  },
+
+  textHeading: {
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    fontWeight: 'bold',
+    fontSize: 22
+
+  },
+
+  textBody: {
+    alignItems: 'flex-start',
+    justifyContent: 'space-around'
+
   }
 
 });
