@@ -60,6 +60,9 @@ export default function HomeScreen() {
     }
     //now we've changed the riddles to how we like, update the state
     dispatch({type:"update",data:{riddles:riddles}});
+
+    global.database.setRiddleStatus(riddles[0].id,{r1:true,r2:true,r3:true})
+    global.database.getRiddleStatus(riddles[0].id)
     
 
   }
@@ -76,9 +79,10 @@ export default function HomeScreen() {
     var ri = state.riddles.findIndex(element => (element.marker == marker ))
     //if(riddle == undefined) return;
     setRiddleIndex(ri)
+    setInGame(true)
   }
 
-  onRiddleAnswerEntered = ()=>{
+  onRiddleAnswerEntered = async ()=>{
   /**
      * This is an example of how you would set a riddle to found in the database
      * once the user has put in the correct input
@@ -93,13 +97,12 @@ export default function HomeScreen() {
       }
     })
     // at the same time, you need to update the map icon, and show the next item in the list
-    console.log(state.riddles[0])
     this.map.changeMarkerIcon(state.riddles[index].marker,Map.icons.bronze)
     if(state.riddles[index+1] != undefined)
-    this.map.addMarker(state.riddles[index+1].generalLocationX,
+    state.riddles[index+1].marker = this.map.addMarker(state.riddles[index+1].generalLocationX,
       state.riddles[index+1].generalLocationY,
       Map.icons.qMark,
-      state.riddles[index].title,
+      state.riddles[index+1].title,
     )
   }
 
