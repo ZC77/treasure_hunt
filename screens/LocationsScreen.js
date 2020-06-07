@@ -26,6 +26,7 @@ export default function LocationsScreen() {
       <Card key={index} style = {styles.cardLayout}>
         <TouchableOpacity>
           <Image source={qmark} style = {styles.image} />
+
           <Text style = {styles.textHeading}>{riddle.title}</Text>
           <Text style = {styles.textBody}>{riddle.blurb}</Text>
         </TouchableOpacity>
@@ -77,6 +78,6 @@ const styles = StyleSheet.create({
   image: {
     width: 50,
     height: 70,
-  }
+  },
 })
 

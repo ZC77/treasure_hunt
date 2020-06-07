@@ -28,8 +28,10 @@ export default function HomeScreen() {
   // To toggle modal visibility
   const [inGame, setInGame] = React.useState(false);
 
-  // To store user answer
-  const [enteredValue, setEnteredValue] = React.useState('');
+  // To store user answers (3 riddles per location)
+  const [ans1, setAns1] = React.useState('');
+  const [ans2, setAns2] = React.useState('');
+  const [ans3, setAns3] = React.useState('');
   
   // EVENTS
   const onMapLoaded = async ()=>{
@@ -103,31 +105,32 @@ export default function HomeScreen() {
 
   const confirmInputHandler = () => {
 
-    let answer = parseInt(enteredValue)
+    let answer1 = ans1
+    let answer2 = ans2
+    let answer3 = ans3
 
-    if (isNaN(answer))
-    {
-      Alert.alert('Invalid input', 'Your answer should be a number!', [{text: 'OK', onPress: resetInputHandler}])
-      return;
-    }
-    else if (answer != 4)
+     if (answer1 != (state.riddles[riddleIndex].answer1))
     {
       Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK', onPress: resetInputHandler}])
       return;
     }
 
-    Alert.alert('Correct', "You've unlocked the library!", [{text: 'Yay!', onPress: onRiddleAnswerEntered}])
+    Alert.alert('Location unlocked', "You've unlocked the library!", [{text: 'Yay!', onPress: onRiddleAnswerEntered}])
     setInGame(false);
-    setEnteredValue('');
+    setRiddleIndex(riddleIndex + 1)
+    setAns1('');
   }
 
   const resetInputHandler = () => {
-    setEnteredValue('');
+    setAns1('');
+    setAns2('');
+    setAns3('');
   }
 
   return (
     
     <View style={styles.container}>
+
         <View style = {styles.cardContainer}>
           <Card style = {styles.mapCard}>
             <View style={{height:350}}>
@@ -143,29 +146,28 @@ export default function HomeScreen() {
               ></Map>
             </View>
           </Card>
+
+
+        <Card style = {styles.objectiveCard}>    
+          <TouchableOpacity onPress = {() => setInGame(true)}> 
+          <Text style = {{...styles.textHeading, color: 'white', textAlign: 'center'}}>Current Objective </Text> 
+          {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
+          <Text style = {{...styles.textBody, color: 'white', textAlign: 'center', fontStyle:'italic', fontSize: 20}}>Discover {state.riddles[riddleIndex].title}</Text> }
+          <Text style = {{...styles.textBody, color: 'white', marginTop: 8, textAlign: 'center', fontSize: 12}}>PRESS TO START</Text>    
+          </TouchableOpacity>
+        </Card>
         </View>
 
-      <View style = {styles.buttonContainer}>
-       <Button title = "Complete first level (for testing only)" color = {Colors.accent} onPress={onRiddleAnswerEntered/*Just for testing*/}></Button>
-      
-      </View>
-      
-
-      <View style = {styles.buttonContainer}>
-      <Button title = "Start game" color = {Colors.primary} onPress = {() => setInGame(true)}></Button>
-      </View>
 
       <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}>
+      {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
       <View style = {styles.cardContainer}>
 
+        <Text style = {styles.textTitle}>{state.riddles[riddleIndex].title}</Text>
+
         <Card style = {styles.statsCard}>
-          {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
-          <ScrollView>
-            <Text style = {styles.textHeading}>{state.riddles[riddleIndex].title}</Text>
-            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle1}</Text>
-          </ScrollView>
-          }
-        </Card>
+            <Text style = {styles.textHeading}>Riddle 1</Text>
+            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle1}</Text> 
 
         <TextInput 
         style = {styles.input}
@@ -173,21 +175,58 @@ export default function HomeScreen() {
         blurOnSubmit
         autoCapitalize = 'none'
         autoCorrect = {false}
-        onChangeText = {setEnteredValue}
-        value = {enteredValue}
+        onChangeText = {setAns1}
+        value = {ans1}
         />
+        </Card>
 
-        <Button title = "confirm" onPress = {confirmInputHandler}/>
+        <Card style = {styles.statsCard}>
+            <Text style = {styles.textHeading}>Riddle 2</Text>
+            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle2}</Text>
+
+        <TextInput 
+        style = {styles.input}
+        placeholder = 'Your answer here..'
+        blurOnSubmit
+        autoCapitalize = 'none'
+        autoCorrect = {false}
+        onChangeText = {setAns2}
+        value = {ans2}
+        />
+        </Card>
+
+        <Card style = {styles.statsCard}>
+            <Text style = {styles.textHeading}>Riddle 3</Text>
+            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle3}</Text>
+
+        <TextInput 
+        style = {styles.input}
+        placeholder = 'Your answer here..'
+        blurOnSubmit
+        autoCapitalize = 'none'
+        autoCorrect = {false}
+        onChangeText = {setAns3}
+        value = {ans3}
+        />
+        </Card>
+
+        <View style = {styles.buttonContainer}>
+        <Button title = "confirm answers" onPress = {confirmInputHandler}/>
+        </View>
+
 
       </View>
+}
       </InGameModal>
 
     </View>
   );
 }
 
-
-
+// JUST A REMINDER
+// JustifyContent = alignment on along the primary axis (Y axis)
+// AlignItems = alignment along the secodary axis (X axis)
+// By default flexdirection is set to column, changing it to row will make secondary axis become primary
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -209,19 +248,32 @@ const styles = StyleSheet.create({
   statsCard: {
     width: '92%',
     justifyContent: 'space-between',
+    marginTop: 10,
+    padding: 15
   },
 
   mapCard: {
     width: '92%',
     justifyContent: 'space-between',
     padding: 0,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    marginTop: 15
+  },
+
+  objectiveCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+    alignItems:'center',
+    marginTop: 10,
+    padding: 15,
+    backgroundColor: Colors.primary
+
   },
 
   cardContainer: {
     alignItems: 'center',
-    paddingVertical: 10,
-    borderRadius: 12
+    paddingVertical: 5,
+    borderRadius: 12,
   },
 
   buttonContainer : {
@@ -229,21 +281,29 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     width: '100%',
-    marginVertical: 15,
+    marginVertical: 10,
   },
 
   input: {
     height: 30,
     borderBottomColor: 'grey',
     borderBottomWidth: 1,
-    marginVertical: 10
+    marginVertical: 5
   },
 
   textHeading: {
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     fontWeight: 'bold',
-    fontSize: 22
+    fontSize: 20,
+    marginBottom: 5
+
+  },
+
+  textTitle: {
+    fontWeight: 'bold',
+    fontSize: 25,
+    marginBottom: 10
 
   },
 

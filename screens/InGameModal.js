@@ -4,7 +4,7 @@ import {View,ScrollView, Text, TextInput, Button, StyleSheet, Modal} from 'react
 const InGameModal = props => {
 
     return (
-        <Modal visible = {props.visible} animationType = 'fade'>
+        <Modal visible = {props.visible} animationType = 'slide'>
             <View style = {styles.Container}>
                 {props.children}
                 <Button title = "Return" onPress = {props.onReturn}/>
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     Container: {
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 20,
+        margin: 10,
         flex: 1
     },
 
