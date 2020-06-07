@@ -1,7 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import * as Permissions from 'expo-permissions';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Alert } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, Button, Dimensions, Alert, TextInput } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../components/StyledText';
@@ -26,7 +26,12 @@ export default function HomeScreen() {
 
 
   // To toggle modal visibility
-  const [inGame, setInGame] = React.useState(false)
+  const [inGame, setInGame] = React.useState(false);
+
+  // To store user answers (3 riddles per location)
+  const [ans1, setAns1] = React.useState('');
+  const [ans2, setAns2] = React.useState('');
+  const [ans3, setAns3] = React.useState('');
   
   // EVENTS
   const onMapLoaded = async ()=>{
@@ -100,55 +105,131 @@ export default function HomeScreen() {
       state.riddles[index+1].title,
     )
   }
-  
-  
+
+  const confirmInputHandler = () => {
+
+    let answer1 = ans1
+    let answer2 = ans2
+    let answer3 = ans3
+
+     if (answer1 != (state.riddles[riddleIndex].answer1))
+    {
+      Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK', onPress: resetInputHandler}])
+      return;
+    }
+
+    Alert.alert('Location unlocked', "You've unlocked the library!", [{text: 'Yay!', onPress: onRiddleAnswerEntered}])
+    setInGame(false);
+    setRiddleIndex(riddleIndex + 1)
+    setAns1('');
+  }
+
+  const resetInputHandler = () => {
+    setAns1('');
+    setAns2('');
+    setAns3('');
+  }
 
   return (
     
     <View style={styles.container}>
-      <View style = {styles.cardContainer}>
-      <Card style = {styles.mapCard}>
-      <View style={{height:350}}>
-      {/*THE MAP*/}
-      <Map 
-      // we have to use a ref, because we can't always pass stuff in as props because
-      // we don't want to create a new instance of a webview every time we change something
-      ref={(ref)=>{this.map = ref}}
-      onLoad={onMapLoaded}
-      onMarkerClick={onMarkerClick}
-      onLocationUpdate={onLocationUpdate}
-      onLocationError={onLocationError}
-      ></Map>
-      </View>
-      </Card>
-      </View>
-      <View style = {styles.buttonContainer}>
-      <Button title = "Autocomplete First Riddle" color = {Colors.primary} onPress={onRiddleAnswerEntered/*Just for testing*/}></Button>
-      </View>
-      
-      <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}>
-      <View style = {styles.cardContainer}>
-        <Card style = {styles.statsCard}>
+
+        <View style = {styles.cardContainer}>
+          <Card style = {styles.mapCard}>
+            <View style={{height:350}}>
+                 {/*THE MAP*/}
+                <Map 
+                  // we have to use a ref, because we can't always pass stuff in as props because
+                  // we don't want to create a new instance of a webview every time we change something
+                 ref={(ref)=>{this.map = ref}}
+                 onLoad={onMapLoaded}
+                onMarkerClick={onMarkerClick}
+                onLocationUpdate={onLocationUpdate}
+                onLocationError={onLocationError}
+              ></Map>
+            </View>
+          </Card>
+
+
+        <Card style = {styles.objectiveCard}>    
+          <TouchableOpacity onPress = {() => setInGame(true)}> 
+          <Text style = {{...styles.textHeading, color: 'white', textAlign: 'center'}}>Current Objective </Text> 
           {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
-          <ScrollView>
-            <Text>{state.riddles[riddleIndex].title}</Text>
-            <Text>{state.riddles[riddleIndex].blurb}</Text>
-            <Text>{state.riddles[riddleIndex].riddle1}</Text>
-            <Text>{state.riddles[riddleIndex].answer1}</Text>
-            <Text>{state.riddles[riddleIndex].riddle2}</Text>
-            <Text>{state.riddles[riddleIndex].riddle1}</Text>
-          </ScrollView>
-          }
+          <Text style = {{...styles.textBody, color: 'white', textAlign: 'center', fontStyle:'italic', fontSize: 20}}>Discover {state.riddles[riddleIndex].title}</Text> }
+          <Text style = {{...styles.textBody, color: 'white', marginTop: 8, textAlign: 'center', fontSize: 12}}>PRESS TO START</Text>    
+          </TouchableOpacity>
         </Card>
+        </View>
+
+
+      <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}>
+      {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
+      <View style = {styles.cardContainer}>
+
+        <Text style = {styles.textTitle}>{state.riddles[riddleIndex].title}</Text>
+
+        <Card style = {styles.statsCard}>
+            <Text style = {styles.textHeading}>Riddle 1</Text>
+            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle1}</Text> 
+
+        <TextInput 
+        style = {styles.input}
+        placeholder = 'Your answer here..'
+        blurOnSubmit
+        autoCapitalize = 'none'
+        autoCorrect = {false}
+        onChangeText = {setAns1}
+        value = {ans1}
+        />
+        </Card>
+
+        <Card style = {styles.statsCard}>
+            <Text style = {styles.textHeading}>Riddle 2</Text>
+            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle2}</Text>
+
+        <TextInput 
+        style = {styles.input}
+        placeholder = 'Your answer here..'
+        blurOnSubmit
+        autoCapitalize = 'none'
+        autoCorrect = {false}
+        onChangeText = {setAns2}
+        value = {ans2}
+        />
+        </Card>
+
+        <Card style = {styles.statsCard}>
+            <Text style = {styles.textHeading}>Riddle 3</Text>
+            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle3}</Text>
+
+        <TextInput 
+        style = {styles.input}
+        placeholder = 'Your answer here..'
+        blurOnSubmit
+        autoCapitalize = 'none'
+        autoCorrect = {false}
+        onChangeText = {setAns3}
+        value = {ans3}
+        />
+        </Card>
+
+        <View style = {styles.buttonContainer}>
+        <Button title = "confirm answers" onPress = {confirmInputHandler}/>
+        </View>
+
+
       </View>
+}
       </InGameModal>
 
     </View>
   );
 }
 
-
-
+// JUST A REMINDER
+// JustifyContent = alignment on along the primary axis (Y axis)
+// AlignItems = alignment along the secodary axis (X axis)
+// By default flexdirection is set to column, changing it to row will make secondary axis become primary
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -170,25 +251,32 @@ const styles = StyleSheet.create({
   statsCard: {
     width: '92%',
     justifyContent: 'space-between',
-
-  },
-
-  statsCard: {
-    width: '92%',
-    justifyContent: 'space-between',
+    marginTop: 10,
+    padding: 15
   },
 
   mapCard: {
     width: '92%',
     justifyContent: 'space-between',
     padding: 0,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    marginTop: 15
+  },
+
+  objectiveCard: {
+    width: '92%',
+    justifyContent: 'space-between',
+    alignItems:'center',
+    marginTop: 10,
+    padding: 15,
+    backgroundColor: Colors.primary
+
   },
 
   cardContainer: {
     alignItems: 'center',
-    paddingVertical: 10,
-    borderRadius: 12
+    paddingVertical: 5,
+    borderRadius: 12,
   },
 
   buttonContainer : {
@@ -196,7 +284,36 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     width: '100%',
-    marginVertical: 25
+    marginVertical: 10,
+  },
+
+  input: {
+    height: 30,
+    borderBottomColor: 'grey',
+    borderBottomWidth: 1,
+    marginVertical: 5
+  },
+
+  textHeading: {
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    fontWeight: 'bold',
+    fontSize: 20,
+    marginBottom: 5
+
+  },
+
+  textTitle: {
+    fontWeight: 'bold',
+    fontSize: 25,
+    marginBottom: 10
+
+  },
+
+  textBody: {
+    alignItems: 'flex-start',
+    justifyContent: 'space-around'
+
   }
 
 });
