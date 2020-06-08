@@ -24,8 +24,8 @@ export default function AchievementsScreen() {
     if(riddle.r3 == true) count++;
     if (count == 0) continue; // only show completed riddles
     else if(count == 1) icon = bronze
-    else if(count==2) icon = silver
-    else if(count==3) icon = gold
+    else if(count == 2) icon = silver
+    else if(count == 3) icon = gold
     completedRiddles.push(
       <Card key={index} style = {styles.cardLayout}>
         <TouchableOpacity style={{flexDirection:"row"}}>
@@ -42,7 +42,7 @@ export default function AchievementsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       {completedRiddles.length == 0 
       ? 
-        <Text>Nothing to show.... yet</Text>
+        <Text style = {styles.textTitle}>Nothing to show.... yet</Text>
       :
         completedRiddles
       }
@@ -71,6 +71,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     fontWeight: 'bold',
     fontSize: 22
+
+  },
+
+  textTitle: {
+    fontWeight: 'bold',
+    fontSize: 25,
+    marginVertical: '70%',
+    textAlign: 'center'
 
   },
 

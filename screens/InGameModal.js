@@ -1,13 +1,19 @@
 import React from 'react'
 import {View,ScrollView, Text, TextInput, Button, StyleSheet, Modal} from 'react-native'
 
+import Colors from "../constants/Colors"
+
+
 const InGameModal = props => {
 
     return (
         <Modal visible = {props.visible} animationType = 'slide'>
             <View style = {styles.Container}>
                 {props.children}
-                <Button title = "Return" onPress = {props.onReturn}/>
+                <View style = {styles.Button}>
+                <Button title = "Return" onPress = {props.onReturn} style ={{color: Colors.accent}}/>
+                </View>
+
             </View>
         </Modal>
     );
@@ -32,6 +38,12 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: 'bold',
         margin: 10
+
+    },
+
+    Button: {
+        marginVertical: 20,
+        justifyContent: "space-evenly"
 
     }
 })
