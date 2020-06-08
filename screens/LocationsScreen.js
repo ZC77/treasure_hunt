@@ -24,11 +24,12 @@ export default function LocationsScreen() {
     uncompletedRiddles.push(
       
       <Card key={index} style = {styles.cardLayout}>
-        <TouchableOpacity>
+        <TouchableOpacity style={{flexDirection:"row"}}>
           <Image source={qmark} style = {styles.image} />
-
-          <Text style = {styles.textHeading}>{riddle.title}</Text>
-          <Text style = {styles.textBody}>{riddle.blurb}</Text>
+          <View style ={{flex:4,paddingLeft:5}}>
+            <Text style = {styles.textHeading}>{riddle.title}</Text>
+            <Text style = {styles.textBody}>{riddle.blurb}</Text>
+          </View>
         </TouchableOpacity>
       </Card>
     )
@@ -76,8 +77,10 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: 50,
-    height: 70,
+    width: 30,
+    height:50,
+    resizeMode: 'contain',
+    flex:1,
   },
 })
 
