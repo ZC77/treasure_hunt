@@ -22,11 +22,12 @@ export default function HomeScreen() {
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [lat, setlat] = React.useState(null);
   const [lng, setlng] = React.useState(null);
-  const [riddleIndex, setRiddleIndex] = React.useState(0);
+  const [riddleIndex, setRiddleIndex] = React.useState(0); // stores the index of the riddle currently being displayed in the modal
+  const [unsolvedIndex,setUnsolvedIndex] = React.useState(0); // stores the index of the next unsolved riddle
 
 
   // To toggle modal visibility
-  const [inGame, setInGame] = React.useState(false);
+  const [ModalStatus, setModalStatus] = React.useState(false);
 
   // To store user answers (3 riddles per location)
   const [ans1, setAns1] = React.useState('');
@@ -37,8 +38,10 @@ export default function HomeScreen() {
   const onMapLoaded = async ()=>{
     //get the riddles
     riddles = await global.database.fetchRiddles()
-    var discoveredRiddle = true;
+    var discoveredPrevRiddle = true;
+    var index = -1
     for(var riddle of riddles){
+      index++;
       // get the riddle statuses and add them to the riddle state
       result = await global.database.getRiddleStatus(riddle.id)
       riddle.r1 = result.r1;
@@ -53,18 +56,14 @@ export default function HomeScreen() {
       if(count == 1) icon = Map.icons.bronze
       else if(count==2) icon = Map.icons.silver
       else if(count==3) icon = Map.icons.gold
-      if(discoveredRiddle)riddle.marker = this.map.addMarker(riddle.generalLocationX,riddle.generalLocationY,icon,riddle.title,)
+      if(discoveredPrevRiddle)riddle.marker = this.map.addMarker(riddle.generalLocationX,riddle.generalLocationY,icon,riddle.title,)
+      // if this riddle is unsolved and the previous riddle was, this is the next unsolved riddle 
+      if(count == 0 && discoveredPrevRiddle) setUnsolvedIndex(index);
       // if this riddle is unsolved, don't show the rest of the riddles)
-      if(count == 0) discoveredRiddle = false;
-      
+      if(count == 0) discoveredPrevRiddle = false;
     }
     //now we've changed the riddles to how we like, update the state
     dispatch({type:"update",data:{riddles:riddles}});
-
-    global.database.setRiddleStatus(riddles[0].id,{r1:true,r2:true,r3:true})
-    global.database.getRiddleStatus(riddles[0].id)
-    
-
   }
   onLocationUpdate = (newlat,newlng)=>{
     setlat(newlat);
@@ -79,55 +78,85 @@ export default function HomeScreen() {
     var ri = state.riddles.findIndex(element => (element.marker == marker ))
     //if(riddle == undefined) return;
     setRiddleIndex(ri)
-    setInGame(true)
+    setModalStatus(true)
   }
 
-  onRiddleAnswerEntered = async ()=>{
-  /**
-     * This is an example of how you would set a riddle to found in the database
-     * once the user has put in the correct input
-     * note: you need the index of the riddle you are updating
-     */
-    var index = 0;
-    dispatch({
-      type:"setRiddleStatus",
-      riddleIndex:index,
-      data:{
-        r1:true,
-      }
-    })
-    // at the same time, you need to update the map icon, and show the next item in the list
-    this.map.changeMarkerIcon(state.riddles[index].marker,Map.icons.bronze)
-    if(state.riddles[index+1] != undefined)
-    state.riddles[index+1].marker = this.map.addMarker(state.riddles[index+1].generalLocationX,
-      state.riddles[index+1].generalLocationY,
-      Map.icons.qMark,
-      state.riddles[index+1].title,
-    )
+  showNextLocation= ()=>{
+    var index = riddleIndex;
+    if(state.riddles[index+1] != undefined && index == unsolvedIndex){
+      // we need to show the next location, because this index was just solved
+      setUnsolvedIndex(index + 1);
+      // display the map icon
+      state.riddles[index+1].marker = this.map.addMarker(state.riddles[index+1].generalLocationX,
+        state.riddles[index+1].generalLocationY,
+        Map.icons.qMark,
+        state.riddles[index+1].title,
+      )
+    }
   }
 
-  const confirmInputHandler = () => {
-
-    let answer1 = ans1
-    let answer2 = ans2
-    let answer3 = ans3
-
-     if (answer1 != (state.riddles[riddleIndex].answer1))
-    {
-      Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK', onPress: resetInputHandler}])
+  const checkR1 = () => {
+     if (ans1 != (state.riddles[riddleIndex].answer1)){
+      Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
+      setAns1('')
       return;
     }
-
-    Alert.alert('Location unlocked', "You've unlocked the library!", [{text: 'Yay!', onPress: onRiddleAnswerEntered}])
-    setInGame(false);
-    setRiddleIndex(riddleIndex + 1)
-    setAns1('');
+    Alert.alert('Correct!', 'Good Job!', [{text: 'OK'}])
+    updateIcon(); // set the icon to gold, silver or bronze - whatevers appropriate.
+    dispatch({
+      type:"setRiddleStatus",
+      riddleIndex:riddleIndex,
+      data:{r1:true,}
+    })
+    showNextLocation()
   }
-
-  const resetInputHandler = () => {
-    setAns1('');
-    setAns2('');
-    setAns3('');
+  const checkR2 = () => {
+    if (ans2 != (state.riddles[riddleIndex].answer2)){
+     Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
+     setAns2('')
+     return;
+   }
+   Alert.alert('Correct!', 'Good Job!', [{text: 'OK'}])
+   updateIcon(); // set the icon to gold, silver or bronze - whatevers appropriate.
+   dispatch({
+     type:"setRiddleStatus",
+     riddleIndex:riddleIndex,
+     data:{r2:true,}
+   })
+   showNextLocation()
+ }
+ const checkR3 = () => {
+  if (ans3 != (state.riddles[riddleIndex].answer3)){
+   Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
+   setAns3('')
+   return;
+ }
+ Alert.alert('Correct!', 'Good Job!', [{text: 'OK'}])
+ updateIcon(); // set the icon to gold, silver or bronze - whatevers appropriate.
+ dispatch({
+   type:"setRiddleStatus",
+   riddleIndex:riddleIndex,
+   data:{r3:true,}
+ })
+ showNextLocation()
+}
+  
+  const updateIcon = ()=>{
+    // bronze if 1, silver if 2, gold if 3
+    var count = 0;
+    if(state.riddles[riddleIndex].r1) count++;
+    if(state.riddles[riddleIndex].r2) count++;
+    if(state.riddles[riddleIndex].r3) count++;
+    count++;// I don't think the state has updated in time, so I'm just gonna add 1 to count here.
+    if(count == 0){
+      this.map.changeMarkerIcon(state.riddles[riddleIndex].marker,Map.icons.qMark)
+    } else if(count == 1){
+      this.map.changeMarkerIcon(state.riddles[riddleIndex].marker,Map.icons.bronze)
+    } else if(count == 2){
+      this.map.changeMarkerIcon(state.riddles[riddleIndex].marker,Map.icons.silver)
+    } else if(count == 3){
+      this.map.changeMarkerIcon(state.riddles[riddleIndex].marker,Map.icons.gold)
+    }
   }
 
   return (
@@ -152,71 +181,69 @@ export default function HomeScreen() {
 
 
         <Card style = {styles.objectiveCard}>    
-          <TouchableOpacity onPress = {() => setInGame(true)}> 
+          <TouchableOpacity onPress = {() => {setModalStatus(true);setRiddleIndex(unsolvedIndex)}}> 
           <Text style = {{...styles.textHeading, color: 'white', textAlign: 'center'}}>Current Objective </Text> 
           {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
-          <Text style = {{...styles.textBody, color: 'white', textAlign: 'center', fontStyle:'italic', fontSize: 20}}>Discover {state.riddles[riddleIndex].title}</Text> }
-          <Text style = {{...styles.textBody, color: 'white', marginTop: 8, textAlign: 'center', fontSize: 12}}>PRESS TO START</Text>    
+          <Text style = {{...styles.textBody, color: 'white', textAlign: 'center', fontStyle:'italic', fontSize: 20}}>Discover {state.riddles[unsolvedIndex].title}</Text> }
+          <Text style = {{...styles.textBody, color: 'white', marginTop: 8, textAlign: 'center', fontSize: 12}}>Touch to show riddles</Text>    
           </TouchableOpacity>
         </Card>
         </View>
 
 
-      <InGameModal visible = {inGame} onReturn = {() => setInGame(false)}>
+      <InGameModal visible = {ModalStatus} onReturn = {() => setModalStatus(false)}>
       {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
       <View style = {styles.cardContainer}>
 
         <Text style = {styles.textTitle}>{state.riddles[riddleIndex].title}</Text>
 
-        <Card style = {styles.statsCard}>
-            <Text style = {styles.textHeading}>Riddle 1</Text>
-            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle1}</Text> 
+        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r1 ? "#00CC00":"#FFFFFF"}}>
+          <Text style = {styles.textHeading}>Riddle 1</Text>
+          <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle1}</Text> 
 
-        <TextInput 
-        style = {styles.input}
-        placeholder = 'Your answer here..'
-        blurOnSubmit
-        autoCapitalize = 'none'
-        autoCorrect = {false}
-        onChangeText = {setAns1}
-        value = {ans1}
-        />
+          <TextInput 
+          style = {styles.input}
+          placeholder = 'Your answer here..'
+          blurOnSubmit
+          autoCapitalize = 'none'
+          autoCorrect = {false}
+          onChangeText = {setAns1}
+          value = {ans1}
+          />
+          <Button title = "check" onPress = {checkR1}/>
         </Card>
 
-        <Card style = {styles.statsCard}>
-            <Text style = {styles.textHeading}>Riddle 2</Text>
-            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle2}</Text>
+        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r2 ? "#00CC00":"#FFFFFF"}}>
+          <Text style = {styles.textHeading}>Riddle 2</Text>
+          <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle2}</Text>
 
-        <TextInput 
-        style = {styles.input}
-        placeholder = 'Your answer here..'
-        blurOnSubmit
-        autoCapitalize = 'none'
-        autoCorrect = {false}
-        onChangeText = {setAns2}
-        value = {ans2}
-        />
+          <TextInput 
+          style = {styles.input}
+          placeholder = 'Your answer here..'
+          blurOnSubmit
+          autoCapitalize = 'none'
+          autoCorrect = {false}
+          onChangeText = {setAns2}
+          value = {ans2}
+          />
+          <Button title = "check" onPress = {checkR2}/>
         </Card>
 
-        <Card style = {styles.statsCard}>
-            <Text style = {styles.textHeading}>Riddle 3</Text>
-            <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle3}</Text>
+        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r3 ? "#00CC00":"#FFFFFF"}}>
+          <Text style = {styles.textHeading}>Riddle 3</Text>
+          <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle3}</Text>
 
-        <TextInput 
-        style = {styles.input}
-        placeholder = 'Your answer here..'
-        blurOnSubmit
-        autoCapitalize = 'none'
-        autoCorrect = {false}
-        onChangeText = {setAns3}
-        value = {ans3}
-        />
+          <TextInput 
+          style = {styles.input}
+          placeholder = 'Your answer here..'
+          blurOnSubmit
+          autoCapitalize = 'none'
+          autoCorrect = {false}
+          onChangeText = {setAns3}
+          value = {ans3}
+          />
+          <Button title = "check" onPress = {checkR3}/>
         </Card>
-
-        <View style = {styles.buttonContainer}>
-        <Button title = "confirm answers" onPress = {confirmInputHandler}/>
-        </View>
-
 
       </View>
 }

@@ -28,11 +28,13 @@ export default function AchievementsScreen() {
     else if(count==3) icon = gold
     completedRiddles.push(
       <Card key={index} style = {styles.cardLayout}>
-        <TouchableOpacity>
-        <Image source={icon} />
-          <Text style = {styles.textHeading}>{riddle.title}</Text>
-          <Text style = {styles.textBody}>{riddle.blurb}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={{flexDirection:"row"}}>
+          <Image source={icon} style = {styles.image} />
+          <View style ={{flex:4,paddingLeft:5}}>
+            <Text style = {styles.textHeading}>{riddle.title}</Text>
+            <Text style = {styles.textBody}>{riddle.blurb}</Text>
+          </View>
+        </TouchableOpacity>
       </Card>
     )
   }
@@ -62,7 +64,7 @@ const styles = StyleSheet.create({
   },
   cardLayout: {
     margin: 10,
-    width: '92%'
+    width: '92%',
   },
   textHeading: {
     alignItems: 'flex-start',
@@ -76,5 +78,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-around'
 
-  }
+  },
+
+  image: {
+    width: 30,
+    height:50,
+    resizeMode: 'contain',
+    flex:1,
+  },
 })
+
