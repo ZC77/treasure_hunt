@@ -95,6 +95,16 @@ export default function HomeScreen() {
     }
   }
 
+  // Clears user input when they exit the modal
+  const returnToHome = () => {
+    setModalStatus(false)
+    setAns1('');
+    setAns1('');
+    setAns1('');
+
+
+  }
+
   const checkR1 = () => {
      if (ans1 != (state.riddles[riddleIndex].answer1)){
       Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
@@ -183,27 +193,30 @@ export default function HomeScreen() {
         <Card style = {styles.objectiveCard}>    
           <TouchableOpacity onPress = {() => {setModalStatus(true);setRiddleIndex(unsolvedIndex)}}> 
           <Text style = {{...styles.textHeading, color: 'white', textAlign: 'center'}}>Current Objective </Text> 
-          {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
+          {state.riddles[riddleIndex] == undefined ? <Text style = {{...styles.textBody, color: 'white', textAlign: 'center', fontStyle:'italic', fontSize: 20}}>content loading...</Text>:
           <Text style = {{...styles.textBody, color: 'white', textAlign: 'center', fontStyle:'italic', fontSize: 20}}>Discover {state.riddles[unsolvedIndex].title}</Text> }
           <Text style = {{...styles.textBody, color: 'white', marginTop: 8, textAlign: 'center', fontSize: 12}}>Touch to show riddles</Text>    
           </TouchableOpacity>
         </Card>
+
         </View>
 
 
-      <InGameModal visible = {ModalStatus} onReturn = {() => setModalStatus(false)}>
+      <InGameModal visible = {ModalStatus} onReturn = {returnToHome}>
       {state.riddles[riddleIndex] == undefined ? <Text>content loading...</Text>:
       <View style = {styles.cardContainer}>
 
         <Text style = {styles.textTitle}>{state.riddles[riddleIndex].title}</Text>
 
-        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r1 ? "#00CC00":"#FFFFFF"}}>
+        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r1 ? "#d9b484":"#fbfbfb"}}>
           <Text style = {styles.textHeading}>Riddle 1</Text>
           <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle1}</Text> 
 
+          <View style = {{flexDirection: 'row', justifyContent: 'space-between'}}>
           <TextInput 
           style = {styles.input}
           placeholder = 'Your answer here..'
+          placeholderTextColor = "black"
           blurOnSubmit
           autoCapitalize = 'none'
           autoCorrect = {false}
@@ -211,15 +224,18 @@ export default function HomeScreen() {
           value = {ans1}
           />
           <Button title = "check" onPress = {checkR1}/>
+          </View>
         </Card>
 
-        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r2 ? "#00CC00":"#FFFFFF"}}>
+        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r2 ? "#b3b3b3":"#fbfbfb"}}>
           <Text style = {styles.textHeading}>Riddle 2</Text>
           <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle2}</Text>
 
+          <View style = {{flexDirection: 'row', justifyContent: 'space-between'}}>
           <TextInput 
           style = {styles.input}
           placeholder = 'Your answer here..'
+          placeholderTextColor = "black"
           blurOnSubmit
           autoCapitalize = 'none'
           autoCorrect = {false}
@@ -227,15 +243,18 @@ export default function HomeScreen() {
           value = {ans2}
           />
           <Button title = "check" onPress = {checkR2}/>
+          </View>
         </Card>
 
-        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r3 ? "#00CC00":"#FFFFFF"}}>
+        <Card style = {{...styles.statsCard,backgroundColor:state.riddles[riddleIndex].r3 ? "#edd77e":"#fbfbfb"}}>
           <Text style = {styles.textHeading}>Riddle 3</Text>
           <Text style = {styles.textBody}>{state.riddles[riddleIndex].riddle3}</Text>
 
+          <View style = {{flexDirection: 'row', justifyContent: 'space-between'}}>
           <TextInput 
           style = {styles.input}
           placeholder = 'Your answer here..'
+          placeholderTextColor = "black"
           blurOnSubmit
           autoCapitalize = 'none'
           autoCorrect = {false}
@@ -243,6 +262,7 @@ export default function HomeScreen() {
           value = {ans3}
           />
           <Button title = "check" onPress = {checkR3}/>
+          </View>
         </Card>
 
       </View>
@@ -294,7 +314,7 @@ const styles = StyleSheet.create({
     width: '92%',
     justifyContent: 'space-between',
     alignItems:'center',
-    marginTop: 10,
+    marginTop: 15,
     padding: 15,
     backgroundColor: Colors.primary
 
@@ -318,7 +338,8 @@ const styles = StyleSheet.create({
     height: 30,
     borderBottomColor: 'grey',
     borderBottomWidth: 1,
-    marginVertical: 5
+    marginVertical: 5,
+    width: '75%'
   },
 
   textHeading: {
