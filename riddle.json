@@ -1,0 +1,72 @@
+[
+{
+    "id":1,
+    "riddle1":"The library stands tall and proud... How many floors does it enshroud?",
+    "answer1":"4",
+    "riddle2":"People here use the Internet... What OS is that on that desk?",
+    "answer2": "windows",
+    "riddle3":"On floor two, ISBN 1234567... what is the first word on page eleven?",
+    "answer3":"the",
+    "generalLocationX":-37.787734,
+    "generalLocationY":175.317811,
+    "radius":30,
+    "title":"The Library",
+    "blurb":"You can go to the library to get books, or to study. There are helpful librarians there. You can also use the computers and print things."
+},
+{
+    "id":2,
+    "riddle1":"R-block has computers a many... How many PCs in room number 20?",
+    "answer1":"32",
+    "riddle2":"What brand are those boards nailed to the wall, in RGO6, all pink and all",
+    "answer2": "basys",
+    "riddle3":"Python is a programming language that rocks, what default version runs on the ubuntu box?",
+    "answer3":"3.3.7",
+    "generalLocationX":-37.789303, 
+    "generalLocationY":175.317462,
+    "radius":30,
+    "title":"R Block",
+    "blurb":"R block has lots of computers to let you do your R'd programming assignments"
+},
+{
+    "id":3,
+    "riddle1":"I got tired of writing riddles. What's Rob's Room number?",
+    "answer1":"24",
+    "riddle2":"What's the room number of the solidworks computers?",
+    "answer2": "28",
+    "riddle3":"When can you take of your safety glasses?",
+    "answer3":"never",
+    "generalLocationX":-37.789519, 
+    "generalLocationY":175.316008,
+    "radius":30,
+    "title":"LSL",
+    "blurb":"The large scale lab is here for your Large Scale Lab projects. You will probably build yourself a boat here in year 1."
+},
+{
+    "id":4,
+    "riddle1":"Lorem ipsum dolor sit amet?",
+    "answer1":"lorem",
+    "riddle2":"lorem ipsum?",
+    "answer2": "lorem",
+    "riddle3":"LOREM IPSUM?",
+    "answer3":"lorem!",
+    "generalLocationX":-37.788934, 
+    "generalLocationY":175.317735,
+    "radius":30,
+    "title":"G block",
+    "blurb":"G block is here. No one knows why, but it's here. Try to avoid it if you can. But wait, I just led you here, you say? Exactly, that's the point. I can't wait to read about this on the news..."
+},
+{
+    "id":4,
+    "riddle1":"Lorem ipsum dolor sit amet?",
+    "answer1":"lorem",
+    "riddle2":"lorem ipsum?",
+    "answer2": "lorem",
+    "riddle3":"LOREM IPSUM?",
+    "answer3":"lorem!",
+    "generalLocationX":-37.788463, 
+    "generalLocationY":175.317161,
+    "radius":30,
+    "title":"S Block",
+    "blurb":"Yup, I got bored of writing blurbs too."
+}
+]
