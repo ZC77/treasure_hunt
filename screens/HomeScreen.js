@@ -73,14 +73,20 @@ export default function HomeScreen() {
   onLocationError = (err) =>{
     setErrorMsg(err);
   }
-
+  // when a marker is clicked (they click More... on the popup), show the modal,
+  // so that the person can answer the riddles.
   onMarkerClick = (marker)=>{
     var ri = state.riddles.findIndex(element => (element.marker == marker ))
     //if(riddle == undefined) return;
+    setAns1('');
+    setAns2('');
+    setAns3('');
     setRiddleIndex(ri)
     setModalStatus(true)
   }
 
+  // this is run when they have completed a riddle and need to see the next riddle location
+  // on the map.
   showNextLocation= ()=>{
     var index = riddleIndex;
     if(state.riddles[index+1] != undefined && index == unsolvedIndex){
@@ -101,10 +107,9 @@ export default function HomeScreen() {
     setAns1('');
     setAns1('');
     setAns1('');
-
-
   }
 
+  // check if riddle 1 is correct, update database + status if it is correct
   const checkR1 = () => {
      if (ans1 != (state.riddles[riddleIndex].answer1)){
       Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
@@ -119,7 +124,9 @@ export default function HomeScreen() {
       data:{r1:true,}
     })
     showNextLocation()
+    setAns1('');
   }
+  //same for R2
   const checkR2 = () => {
     if (ans2 != (state.riddles[riddleIndex].answer2)){
      Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
@@ -134,23 +141,26 @@ export default function HomeScreen() {
      data:{r2:true,}
    })
    showNextLocation()
- }
- const checkR3 = () => {
-  if (ans3 != (state.riddles[riddleIndex].answer3)){
-   Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
-   setAns3('')
-   return;
- }
- Alert.alert('Correct!', 'Good Job!', [{text: 'OK'}])
- updateIcon(); // set the icon to gold, silver or bronze - whatevers appropriate.
- dispatch({
-   type:"setRiddleStatus",
-   riddleIndex:riddleIndex,
-   data:{r3:true,}
- })
- showNextLocation()
-}
-  
+   setAns2('');
+  }
+  // same for R3
+  const checkR3 = () => {
+    if (ans3 != (state.riddles[riddleIndex].answer3)){
+    Alert.alert('Incorrect answer', 'Try that one again!', [{text: 'OK'}])
+    setAns3('')
+    return;
+  }
+  Alert.alert('Correct!', 'Good Job!', [{text: 'OK'}])
+  updateIcon(); // set the icon to gold, silver or bronze - whatevers appropriate.
+  dispatch({
+    type:"setRiddleStatus",
+    riddleIndex:riddleIndex,
+    data:{r3:true,}
+  })
+  showNextLocation()
+  setAns3('');
+  }
+  // update the icon, so when they answer a riddle the riddle medal is always the right color
   const updateIcon = ()=>{
     // bronze if 1, silver if 2, gold if 3
     var count = 0;

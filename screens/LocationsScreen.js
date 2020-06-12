@@ -38,7 +38,7 @@ export default function LocationsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       {uncompletedRiddles.length == 0 
       ? 
-        <Text style = {styles.textTitle}>It seems as though you have completed everything!</Text>
+        <Text>It seems as though you have completed everything!</Text>
       :
         uncompletedRiddles
       }
@@ -53,7 +53,7 @@ export default function LocationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa'
+    backgroundColor: '#fafafa',
   },
   contentContainer: {
     paddingTop: 15,
@@ -73,14 +73,6 @@ const styles = StyleSheet.create({
   textBody: {
     alignItems: 'flex-start',
     justifyContent: 'space-around'
-
-  },
-
-  textTitle: {
-    fontWeight: 'bold',
-    fontSize: 25,
-    marginTop: '65%',
-    textAlign: 'center'
 
   },
 
