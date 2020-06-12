@@ -91,6 +91,7 @@ function postMsg(message){
     `;
     //--------------------------------PRIVATE METHODS --------------------------------
 
+    // getting the user's current location (requesting permission, subscribing to location updates)
     componentDidMount(){
         this.componentDidUpdate();
     }
@@ -111,19 +112,22 @@ function postMsg(message){
     }
     
 
-
+    // used to generate popup messages
     _generateLink(infoLocation){
         return " <a href='#' onclick='postMsg(`" + infoLocation + "`)'>More...</a>"
     }
 
 
     // Events
-    
+    // messages from the webView, e.g click events    
     _onWebviewMessage = (event)=>{
+        // emit the onLoad even the first time the map is loaded.
         if(event.nativeEvent.data == "load"){
             if(!global.___mapLoaded){this.props.onLoad();global.___mapLoaded = true;}
             return;
         }
+        // when a marker is clicked in the webview, run the onMarkerClick function
+        // overrided by parent element in props
         this.props.onMarkerClick(event.nativeEvent.data);
     }
     
@@ -133,6 +137,7 @@ function postMsg(message){
 
     ///------------------------------PUBLICLY ACCESSIBLE METHODS -----------------------
     //---------STATIC METHODS/CONSTANTS
+    // list of icons you could add to the map
     static icons = {
         gold:"icon_gold",
         silver:"icon_silver",
@@ -141,7 +146,10 @@ function postMsg(message){
         eMark:"icon_emark",
         default:"L.Icon.Default"
     }
-
+    // this function would be used to check how close the player was to a riddle, 
+    //to ensure they actually go to the places.
+    // we didn't implement this because during the demo we didn't want to have to worry about
+    // always changing the emulators location.
     static distanceBetween(lat1, lng1, lat2, lng2){
         var earthRadiusM = 6378100;
         var dLat = (lat2-lat1)* (Math.PI/180);
@@ -157,6 +165,7 @@ function postMsg(message){
     }
 
     // -----------MAP MODIFIER METHODS 
+    // pan to the given coordinates in the map
     panTo(lat , long){
         this.webref.injectJavaScript(`
         map.panTo([`+lat+`,`+long+`])
@@ -164,20 +173,8 @@ function postMsg(message){
     }
 
     markerCount = 0;
+    // add a new marker to the map
     addMarker(lat,long,icon,popupMsg,circleinfo){
-        /*
-        lat: number
-        long: number
-        icon: Map.icon.something
-        popupMsg: string
-        circleinfo : object {
-            circleColor: (default "red", html color string)
-            circleRadius: (default 20)
-        }
-        
-        */
-        
-        
         this.markerCount++;
         this.webref.injectJavaScript(`
             var mkr`+this.markerCount+` = L.marker([`+lat+`,`+long+`],{icon:`+icon+`}).addTo(markerGroup)
@@ -202,13 +199,15 @@ function postMsg(message){
         }
         return this.markerCount.toString();// that way we can store the id of each marker
     }
-
+    // remove marker from map
     removeMarker(marker){
         this.webref.injectJavaScript("markerGroup.removeLayer(mkr"+marker+")");
     }
+    // change the icon of a given marker
     changeMarkerIcon(marker,newIcon){
         this.webref.injectJavaScript("mkr"+marker+".setIcon("+newIcon+")");
     }
+    // change the popum message of a given marker
     changeMarkerPopup(marker,popupMsg){
         this.webref.injectJavaScript(` mkr`+marker+`.setPopupContent("`+popupMsg+this._generateLink(marker)+`")`);
     }

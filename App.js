@@ -29,27 +29,26 @@ var initialState = {
   riddles:[]
 };
 
+/// reducer function for the global state
 const reducer = (state, action) => {
   if(action.type == "load"){
-    return action.data
+    return action.data // set the state directly to the data passed
   } 
   if (action.type == "update"){
-    return {...state, ...action.data}
+    return {...state, ...action.data} // merge the state with the data passed
   }
-  if (action.type == "setRiddleStatus"){
+  if (action.type == "setRiddleStatus"){ // set the riddle status based on the ID passed
     // update the riddle field
     state.riddles[action.riddleIndex] = {...state.riddles[action.riddleIndex], ...action.data}
-    // update the database
+    // update the database as well
     global.database.setRiddleStatus(state.riddles[action.riddleIndex].id,{
       r1:state.riddles[action.riddleIndex].r1,
       r2:state.riddles[action.riddleIndex].r2,
       r3:state.riddles[action.riddleIndex].r3,
       ...action.data
     })
-    
     return state;
   }
-  
 };
 
 
