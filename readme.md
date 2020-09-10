@@ -9,9 +9,11 @@ Utilising an achievement based reward system, participants are motivated to answ
 
 By bringing an objective to campus orientation, riddles can prompt students to explore the campus and learn important information in the process. Our implementation of riddles in a location-aware context aims to provide students with an app they can use on campus in their own time, with potential for the university to expand later down the road. 
 
-## Project Members ##
+### Project Members ###
 Bert Downs 
+
 Zachary Cui
+
 Harrison Whiting
 
 **For those who are interested, I've attached a link to our group presentation slides:**
